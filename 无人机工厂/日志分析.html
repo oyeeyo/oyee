@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>无人机出厂测试数据分析群 · 试飞日志流式卡片原型</title>
+<script defer src="https://inc-bdp-usb-shenzhen-futian1-oss.sf-express.com/v1.2/AUTH_INC-BDP-USB/echo/docs-file/echo_iconfont.js"></script>
+<style>
+  :root{
+    --brand:#1E6FFF; --brand-deep:#1657D6; --brand-soft:#EAF2FF; --brand-soft2:#F4F8FF;
+    --ok:#00A870; --ok-soft:#E7F7F0; --danger:#F53F3F; --danger-soft:#FDECEC;
+    --warn:#FF7D00; --warn-soft:#FFF4E8;
+    --ink-1:#1F2329; --ink-2:#4E5969; --ink-3:#86909C; --ink-4:#C9CDD4;
+    --line:#E5E6EB; --line-soft:#EFF0F3;
+    --surface:#FFFFFF; --surface-2:#F5F6F8; --surface-3:#FAFBFC;
+    --sh-1:0 1px 2px rgba(31,35,41,.06); --sh-2:0 2px 10px rgba(31,35,41,.07); --sh-3:0 8px 28px rgba(31,35,41,.12);
+    --r-sm:6px; --r-md:8px; --r-lg:12px; --r-xl:14px; --r-full:999px;
+    --ease:cubic-bezier(.4,0,.2,1);
+    --font:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Source Han Sans SC","Noto Sans CJK SC",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0; font-family:var(--font); color:var(--ink-1); background:#EEF0F3; display:flex; align-items:center; justify-content:center; padding:20px; -webkit-font-smoothing:antialiased;}
+  button{font-family:inherit; cursor:pointer;}
+  a{text-decoration:none;}
+  .window{width:min(1420px,100%); height:min(920px,100%); display:flex; flex-direction:column; background:var(--surface); border-radius:16px; box-shadow:var(--sh-3); overflow:hidden; position:relative;}
+  .chat-header{flex:none; height:66px; padding:0 20px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line-soft); background:var(--surface);}
+  .group-ava{width:38px; height:38px; border-radius:9px; flex:none; background:linear-gradient(150deg,#4E93FF,#1E6FFF); color:#fff; display:flex; align-items:center; justify-content:center;}
+  .group-ava svg{width:22px;height:22px;}
+  .group-info{min-width:0;}
+  .group-name{display:flex; align-items:center; gap:7px; font-size:15.5px; font-weight:600; letter-spacing:.2px;}
+  .group-count{font-size:13px; color:var(--ink-3); font-weight:400;}
+  .tag-inner{font-size:11px; padding:1px 6px; border-radius:4px; background:var(--brand-soft); color:var(--brand); font-weight:500;}
+  .group-sub{font-size:12px; color:var(--ink-3); margin-top:2px;}
+  .header-tools{margin-left:auto; display:flex; align-items:center; gap:4px; color:var(--ink-2);}
+  .icon-btn{width:32px;height:32px;border:none;background:transparent;border-radius:var(--r-md); display:flex;align-items:center;justify-content:center;color:var(--ink-2); transition:background .16s var(--ease),color .16s var(--ease);}
+  .icon-btn:hover{background:var(--surface-2); color:var(--ink-1);}
+  .icon-btn svg{width:17px;height:17px;}
+  .tool-div{width:1px;height:18px;background:var(--line);margin:0 6px;}
+  .chat-body{flex:1; overflow-y:auto; background:var(--surface-2); padding:14px 26px 26px;}
+  .chat-body::-webkit-scrollbar{width:8px;}
+  .chat-body::-webkit-scrollbar-thumb{background:#D8DBE0;border-radius:8px;border:2px solid var(--surface-2);}
+  .chat-body::-webkit-scrollbar-thumb:hover{background:#C4C8CF;}
+  .time-sep{text-align:center; color:var(--ink-3); font-size:12px; margin:16px 0; letter-spacing:.3px;}
+  .sys-msg{text-align:center; color:var(--ink-3); font-size:12.5px; line-height:1.75; max-width:600px; margin:6px auto 14px; text-wrap:pretty;}
+  .sys-msg b{color:var(--ink-2); font-weight:500;}
+  .msg{display:flex; gap:10px; padding:5px 0; position:relative;}
+  .ava{width:36px;height:36px;border-radius:9px;flex:none; display:flex;align-items:center;justify-content:center; color:#fff; font-size:14px; font-weight:500; letter-spacing:.5px;}
+  .ava.p1{background:#4C7DF0;} .ava.p2{background:#E0913A;} .ava.p3{background:#45A08A;}
+  .ava.bot{background:linear-gradient(150deg,#3F86FF,#1E6FFF); box-shadow:0 2px 6px rgba(30,111,255,.35);}
+  .ava.bot svg{width:21px;height:21px;}
+  .msg-main{min-width:0; max-width:720px;}
+  .msg-meta{display:flex; align-items:center; gap:7px; margin:2px 0 5px; font-size:12.5px; color:var(--ink-3);}
+  .msg-meta .name{color:var(--ink-2); font-weight:500; font-size:13px;}
+  .bot-tag{font-size:10.5px; padding:1px 5px; border-radius:4px; background:var(--brand-soft); color:var(--brand); font-weight:500;}
+  .busy{font-size:11px; color:var(--ink-4);}
+  .bubble{background:var(--surface); border:1px solid var(--line-soft); border-radius:12px; border-top-left-radius:4px; padding:11px 14px; font-size:14px; line-height:1.7; box-shadow:var(--sh-1); text-wrap:pretty;}
+  .bubble p{margin:0;}
+  .bubble p + p{margin-top:6px;}
+  .mention{color:var(--brand); font-weight:500;}
+  .bubble .sub{font-size:12px; color:var(--ink-3); margin-top:6px;}
+  .msg-tools{position:absolute; left:100%; top:36px; margin-left:6px; display:flex; gap:2px; opacity:0; transition:opacity .16s var(--ease);}
+  .msg-main:hover + .msg-tools{opacity:1;}
+  .msg-tools .m-tool{width:26px;height:26px;border:none;background:var(--surface);border:1px solid var(--line); border-radius:var(--r-sm); color:var(--ink-3); display:flex;align-items:center;justify-content:center;}
+  .msg-tools .m-tool:hover{color:var(--brand); border-color:#CFE0FF;}
+  .msg-tools svg{width:14px;height:14px;}
+  .file-card{width:400px; max-width:100%;}
+  .file-top{display:flex; gap:11px; align-items:center;}
+  .file-ico{width:42px;height:42px;border-radius:9px;flex:none; background:linear-gradient(150deg,#5B9BFF,#1E6FFF); color:#fff; display:flex;align-items:center;justify-content:center;}
+  .file-ico svg{width:22px;height:22px;}
+  .file-name{font-size:13.5px; color:var(--ink-1); line-height:1.45; word-break:break-all;}
+  .file-meta{margin-top:4px; display:flex; align-items:center; gap:5px; font-size:12px; color:var(--ink-3);}
+  .file-meta svg{width:13px;height:13px;}
+  .file-btns{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;}
+  .file-btns button{height:34px; border:1px solid var(--line); background:var(--surface-3); border-radius:var(--r-md); font-size:13px; color:var(--ink-1); transition:background .16s var(--ease),border-color .16s var(--ease);}
+  .file-btns button:hover{background:var(--brand-soft); border-color:#CFE0FF; color:var(--brand);}
+  .quote{border-left:3px solid var(--line); background:var(--surface-2); padding:6px 10px; border-radius:0 6px 6px 0; font-size:12.5px; color:var(--ink-3); margin-bottom:8px; line-height:1.6;}
+  .reactions{display:flex; gap:6px; margin-top:9px;}
+  .reaction{display:inline-flex; align-items:center; gap:4px; font-size:12px; color:var(--ink-2); background:var(--surface-2); border:1px solid var(--line-soft); border-radius:var(--r-full); padding:2px 9px;}
+  .reaction.on{background:var(--brand-soft); border-color:#CFE0FF; color:var(--brand);}
+  .reply-tip{font-size:12px; color:var(--brand); margin-top:6px; display:flex; align-items:center; gap:5px;}
+  .reply-tip::before{content:""; width:5px;height:5px;border-radius:50%;background:var(--brand);}
+  .card-bubble{width:620px; max-width:100%; padding:0; overflow:hidden; border-radius:var(--r-xl); border-top-left-radius:4px; box-shadow:var(--sh-2);}
+  .card-inner{padding:16px 18px;}
+  [data-step]{transition:opacity .32s var(--ease), transform .32s var(--ease);}
+  .is-hidden{opacity:0; transform:translateY(8px); pointer-events:none;}
+  .queue-ph{padding:20px 14px; border:1px dashed var(--line); border-radius:var(--r-md); background:var(--surface-3); color:var(--ink-3); font-size:12.5px; text-align:center; line-height:1.7;}
+  .card-head{display:flex; gap:12px; align-items:flex-start;}
+  .card-head-ico{width:44px;height:44px;border-radius:11px;flex:none; background:linear-gradient(150deg,#3F86FF,#1657D6); color:#fff; display:flex;align-items:center;justify-content:center; box-shadow:0 3px 10px rgba(30,111,255,.28);}
+  .card-head-ico svg{width:25px;height:25px;}
+  .card-head-main{flex:1; min-width:0;}
+  .card-head-l1{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .sn-pill{font-size:12px; font-weight:500; padding:2px 9px; border-radius:var(--r-full); background:var(--brand-soft); color:var(--brand); border:1px solid #D6E6FF; font-variant-numeric:tabular-nums;}
+  .st-badge{margin-left:auto; font-size:11px; padding:2px 9px; border-radius:var(--r-full); font-weight:500; background:var(--surface-2); color:var(--ink-3); border:1px solid var(--line-soft); transition:background .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease);}
+  .st-badge.streaming{background:var(--brand-soft2); color:var(--brand); border-color:#D6E6FF;}
+  .st-badge.ready{background:var(--brand-soft); color:var(--brand); border-color:#D6E6FF;}
+  .st-badge.pass{background:var(--ok-soft); color:#00764F; border-color:#C9EBDC;}
+  .st-badge.fail{background:var(--danger-soft); color:#C42B2B; border-color:#FBD4D4;}
+  .st-badge.error{background:var(--warn-soft); color:#B85C00; border-color:#FFE0BF;}
+  .card-head-l2{margin-top:6px; font-size:12.5px; color:var(--ink-3); display:flex; align-items:center; gap:7px; flex-wrap:wrap;}
+  .card-head-l2 .sep{color:var(--ink-4);}
+  .src-file{display:inline-flex; align-items:center; gap:5px; color:var(--ink-2); max-width:280px;}
+  .src-file span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .src-file svg{width:13px;height:13px;flex:none;color:var(--ink-3);}
+  .log-link-row{margin-top:10px; font-size:12.5px; line-height:1.6;}
+  .log-link{display:inline-flex; align-items:center; gap:5px; max-width:100%; color:var(--brand); transition:color .16s var(--ease);}
+  .log-link:hover{color:var(--brand-deep); text-decoration:underline;}
+  .log-link svg{width:13px;height:13px;flex:none;}
+  .log-link .lk-txt{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .card-div{height:1px; background:var(--line-soft); margin:16px 0 0;}
+  .card-section{padding-top:15px;}
+  .section-head{display:flex; align-items:center; gap:8px; margin-bottom:11px;}
+  .section-title{font-size:13.5px; font-weight:600; color:var(--ink-1);}
+  .section-hint{font-size:12px; color:var(--ink-3);}
+  .section-hint.strong{color:var(--brand);}
+  .chip-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .chip{display:flex; align-items:center; gap:9px; min-height:40px; padding:8px 11px; border:1px solid var(--line); border-radius:var(--r-md); background:var(--surface); font-size:13px; color:var(--ink-1); line-height:1.45; cursor:pointer; user-select:none; text-align:left; transition:opacity .28s var(--ease), transform .28s var(--ease), background .16s var(--ease), border-color .16s var(--ease), box-shadow .16s var(--ease);}
+  .chip:hover{border-color:#B9D4FF; background:var(--brand-soft2);}
+  .chip .tick{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--ink-4);flex:none; display:flex;align-items:center;justify-content:center;position:relative; transition:background .16s var(--ease), border-color .16s var(--ease);}
+  .chip .tick svg{width:10px;height:10px;color:#fff;opacity:0;transition:opacity .16s var(--ease);}
+  .chip .txt{flex:1; text-wrap:pretty;}
+  .chip .idx{font-size:11px; color:var(--ink-4); font-variant-numeric:tabular-nums; flex:none;}
+  .chip.on{background:var(--brand-soft); border-color:#9CC4FF; box-shadow:0 0 0 2px rgba(30,111,255,.09);}
+  .chip.on .tick{background:var(--brand); border-color:var(--brand);}
+  .chip.on .tick svg{opacity:1;}
+  .chip.on .idx{color:var(--brand);}
+  .card-resolved .chip{cursor:default;}
+  .card-resolved .chip:hover{background:var(--surface); border-color:var(--line);}
+  .card-resolved .chip.on:hover{background:var(--brand-soft); border-color:#9CC4FF;}
+  .other-field{margin-top:14px;}
+  .of-head{display:flex; align-items:baseline; gap:8px; margin-bottom:7px;}
+  .of-title{font-size:13.5px; font-weight:600; color:var(--ink-1);}
+  .of-hint{font-size:11.5px; color:var(--ink-3);}
+  .other-field textarea{width:100%; min-height:66px; resize:vertical; border:1px solid var(--line); border-radius:var(--r-md); padding:9px 11px; font-family:inherit; font-size:13px; line-height:1.65; color:var(--ink-1); outline:none; background:var(--surface); display:block; transition:border-color .16s var(--ease), box-shadow .16s var(--ease), background .16s var(--ease);}
+  .other-field textarea:hover{border-color:#B9D4FF;}
+  .other-field textarea:focus{border-color:var(--brand); box-shadow:0 0 0 3px rgba(30,111,255,.1);}
+  .other-field textarea::placeholder{color:var(--ink-4);}
+  .card-resolved .other-field textarea{background:var(--surface-3); color:var(--ink-2); border-color:var(--line-soft);}
+  .card-foot{margin-top:16px; padding-top:14px; border-top:1px dashed var(--line);}
+  .foot-actions{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .btn-judge{height:42px; border:none; border-radius:var(--r-md); font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:7px; color:#fff; transition:filter .16s var(--ease), transform .12s var(--ease), opacity .16s var(--ease);}
+  .btn-judge svg{width:16px;height:16px;}
+  .btn-judge.pass{background:var(--ok); box-shadow:0 2px 8px rgba(0,168,112,.25);}
+  .btn-judge.fail{background:var(--danger); box-shadow:0 2px 8px rgba(245,63,63,.22);}
+  .btn-judge:hover{filter:brightness(1.06);}
+  .btn-judge:active{transform:translateY(1px);}
+  .btn-judge:disabled{opacity:.55; cursor:not-allowed; filter:none; transform:none;}
+  .btn-judge.loading{opacity:.85; cursor:progress;}
+  .card-alert{margin-top:10px; font-size:12.5px; border-radius:var(--r-md); padding:0 12px; max-height:0; overflow:hidden; opacity:0; transition:max-height .22s var(--ease), padding .22s var(--ease), opacity .2s;}
+  .card-alert.show{max-height:84px; padding:9px 12px; opacity:1;}
+  .card-alert.warn{background:var(--warn-soft); color:#B85C00; border:1px solid #FFE0BF;}
+  .card-alert.err{background:var(--danger-soft); color:#C42B2B; border:1px solid #FBD4D4;}
+  .card-alert.info{background:var(--brand-soft2); color:var(--brand-deep); border:1px solid #D6E6FF;}
+  .card-result{margin-top:16px; border-radius:var(--r-lg); padding:13px 15px; display:flex; gap:11px; align-items:flex-start; animation:drop .26s var(--ease);}
+  @keyframes drop{from{opacity:0; transform:translateY(-5px);} to{opacity:1; transform:none;}}
+  .card-result.pass{background:var(--ok-soft); border:1px solid #C9EBDC;}
+  .card-result.fail{background:var(--danger-soft); border:1px solid #FBD4D4;}
+  .card-result.error{background:var(--warn-soft); border:1px solid #FFE0BF;}
+  .cr-ico{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;}
+  .card-result.pass .cr-ico{background:var(--ok);}
+  .card-result.fail .cr-ico{background:var(--danger);}
+  .card-result.error .cr-ico{background:var(--warn);}
+  .cr-ico svg{width:16px;height:16px;}
+  .cr-title{font-size:14px; font-weight:600;}
+  .card-result.pass .cr-title{color:#00764F;}
+  .card-result.fail .cr-title{color:#C42B2B;}
+  .card-result.error .cr-title{color:#B85C00;}
+  .cr-sub{font-size:12.5px; color:var(--ink-2); margin-top:4px; line-height:1.65; text-wrap:pretty;}
+  .card-resolved .foot-actions{display:none;}
+  .composer{flex:none; background:var(--surface); border-top:1px solid var(--line-soft); padding:10px 18px 12px;}
+  .quick-row{display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; margin-bottom:2px;}
+  .quick-row::-webkit-scrollbar{height:0;}
+  .quick{display:inline-flex; align-items:center; gap:6px; white-space:nowrap; padding:6px 13px; border-radius:var(--r-full); font-size:12.5px; color:var(--ink-2); background:var(--surface-3); border:1px solid var(--line-soft); transition:background .16s var(--ease), color .16s var(--ease), border-color .16s var(--ease);}
+  .quick:hover{background:var(--brand-soft2); color:var(--brand); border-color:#D6E6FF;}
+  .quick svg{width:14px;height:14px;color:var(--ink-3);}
+  .quick:hover svg{color:var(--brand);}
+  .quick.more{padding:6px 9px;}
+  .input-box{border:1px solid var(--line); border-radius:var(--r-lg); padding:10px 12px 8px; background:var(--surface);}
+  .input-box textarea{width:100%; border:none; outline:none; resize:none; height:26px; font-family:inherit; font-size:14px; line-height:1.6; color:var(--ink-1);}
+  .input-box textarea::placeholder{color:var(--ink-4);}
+  .input-tools{display:flex; align-items:center; gap:2px; margin-top:6px;}
+  .input-tools .itool{width:30px;height:30px;border:none;background:transparent;border-radius:var(--r-sm); color:var(--ink-3); display:flex;align-items:center;justify-content:center; transition:background .16s var(--ease),color .16s var(--ease);}
+  .input-tools .itool:hover{background:var(--surface-2); color:var(--ink-1);}
+  .input-tools .itool svg{width:17px;height:17px;}
+  .input-tools .gap{flex:1;}
+  .send-btn{height:32px; padding:0 16px; border:none; border-radius:var(--r-md); background:var(--brand); color:#fff; font-size:13px; font-weight:500; display:flex; align-items:center; gap:5px;}
+  .send-btn:disabled{background:var(--line); color:#fff; cursor:not-allowed;}
+  .send-caret{width:26px;height:32px;border:none;background:transparent;color:var(--ink-3);display:flex;align-items:center;justify-content:center;}
+  .enter-hint{text-align:right; font-size:11.5px; color:var(--ink-4); margin-top:6px; padding-right:2px;}
+  .compact .chat-body{padding:8px 20px 18px;}
+  .compact .msg{padding:2px 0;}
+  .compact .bubble{padding:9px 12px; font-size:13.5px;}
+  .compact .card-inner{padding:13px 15px;}
+  .compact .chip{min-height:36px; font-size:12.5px;}
+  .tw{position:fixed; right:22px; bottom:22px; width:250px; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:var(--r-xl); box-shadow:0 10px 34px rgba(31,35,41,.16); z-index:50; font-size:12.5px; overflow:hidden;}
+  .tw-head{display:flex; align-items:center; justify-content:space-between; padding:10px 13px; font-weight:600; font-size:12.5px; color:var(--ink-1); border-bottom:1px solid var(--line-soft); letter-spacing:.4px;}
+  .tw-head .dot{width:6px;height:6px;border-radius:50%;background:var(--brand);margin-right:7px;display:inline-block;}
+  .tw-head button{border:none;background:transparent;color:var(--ink-3);font-size:15px;line-height:1;padding:0 2px;}
+  .tw-body{padding:12px 13px 14px;}
+  .tw-group + .tw-group{margin-top:12px;}
+  .tw-label{font-size:11.5px; color:var(--ink-3); margin-bottom:7px; letter-spacing:.3px;}
+  .tw-radios{display:flex; flex-direction:column; gap:5px;}
+  .tw-radios label{display:flex; align-items:center; gap:7px; cursor:pointer; color:var(--ink-2); font-size:12.5px;}
+  .tw-radios input{accent-color:var(--brand); width:14px;height:14px;}
+  .tw-btn{width:100%; margin-top:13px; height:32px; border-radius:var(--r-md); border:1px solid #D6E6FF; background:var(--brand-soft2); color:var(--brand); font-size:12.5px; font-weight:500;}
+  .tw-btn:hover{background:var(--brand-soft);}
+  .tw.collapsed .tw-body{display:none;}
+  @media (max-width:900px){
+    body{padding:0;}
+    .window{border-radius:0; height:100%;}
+    .card-bubble{width:100%;}
+    .chip-grid{grid-template-columns:1fr;}
+    .msg-main{max-width:100%;}
+    .tw{right:12px; bottom:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="window" id="win">
+
+  <header class="chat-header">
+    <div class="group-ava">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="5" cy="5" r="2.3"/><circle cx="19" cy="5" r="2.3"/>
+        <circle cx="5" cy="19" r="2.3"/><circle cx="19" cy="19" r="2.3"/>
+        <rect x="9.2" y="9.2" width="5.6" height="5.6" rx="1.8"/>
+        <path d="M6.7 6.7l1.7 1.7M17.3 6.7l-1.7 1.7M6.7 17.3l1.7-1.7M17.3 17.3l-1.7-1.7"/>
+      </svg>
+    </div>
+    <div class="group-info">
+      <div class="group-name">
+        无人机出厂测试数据分析群
+        <span class="group-count">(50)</span>
+        <span class="tag-inner">内测群</span>
+      </div>
+      <div class="group-sub">归属于顺丰速运有限公司</div>
+    </div>
+    <div class="header-tools">
+      <button class="icon-btn" title="视频通话"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="12.5" height="11" rx="2.4"/><path d="M15 11l5.5-3v8L15 13z"/></svg></button>
+      <button class="icon-btn" title="会议"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2.4"/><path d="M3 9.5h18M7.5 13.5h6M7.5 16h3.5"/></svg></button>
+      <button class="icon-btn" title="通讯录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h13a1.5 1.5 0 011.5 1.5v12a1.5 1.5 0 01-1.5 1.5H5z"/><path d="M5 4.5A1.5 1.5 0 003.5 6v12A1.5 1.5 0 005 19.5M8 9h7M8 13h4.5"/></svg></button>
+      <button class="icon-btn" title="收藏"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6.5 3.8h11a1.2 1.2 0 011.2 1.2v15.2L12 16.6l-6.7 3.6V5a1.2 1.2 0 011.2-1.2z"/></svg></button>
+      <button class="icon-btn" title="搜索"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.3"/><path d="M15.6 15.6L20 20"/></svg></button>
+      <button class="icon-btn" title="添加成员"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="10" cy="8" r="3.4"/><path d="M4.2 19.2c.6-3.2 3-5 5.8-5s5.2 1.8 5.8 5"/><path d="M17.5 7v6M14.5 10h6"/></svg></button>
+      <span class="tool-div"></span>
+      <button class="icon-btn" title="更多"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg></button>
+      <button class="icon-btn" title="设置"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2.9"/><path d="M19.4 14.4a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.7 1.7 0 00-2.87 1.2 2 2 0 11-4 0 1.7 1.7 0 00-2.87-1.2l-.06.06A2 2 0 114.28 16.3l.06-.06A1.7 1.7 0 003.14 13.4a2 2 0 010-4 1.7 1.7 0 001.2-2.87l-.06-.06A2 2 0 117.1 3.64l.06.06a1.7 1.7 0 002.87-1.2 2 2 0 014 0 1.7 1.7 0 002.87 1.2l.06-.06a2 2 0 112.83 2.83l-.06.06a1.7 1.7 0 001.2 2.87 2 2 0 010 4 1.7 1.7 0 00-1.53 1z"/></svg></button>
+    </div>
+  </header>
+
+  <main class="chat-body" id="chatBody">
+
+    <div class="msg">
+      <div class="ava p2">冯</div>
+      <div class="msg-main">
+        <div class="msg-meta"><span class="name">冯泽苇</span><span class="busy">忙碌中</span><span>09月21日 14:52</span></div>
+        <div class="bubble">
+          <p><a class="mention">@冯泽苇(冯泽苇)</a> 8399、8421 二架方舟 40 培训机遥控器和航线飞行出厂试飞日志</p>
+          <p><a class="mention">@张群修</a> 8399、8421 导航状态正常</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-sep">昨天 14:57</div>
+
+    <div class="msg">
+      <div class="ava p1">梁</div>
+      <div class="msg-main">
+        <div class="msg-meta"><span class="name">梁楚裕</span><span>09月21日 14:57</span></div>
+        <div class="bubble file-card">
+          <div class="file-top">
+            <div class="file-ico">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13.5 3.5H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V9z"/><path d="M13.5 3.5V9H19"/>
+              </svg>
+            </div>
+            <div>
+              <div class="file-name">plane-8400_log11-…-0917-133918.sfbin</div>
+              <div class="file-meta">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2.6 12S6 5.8 12 5.8 21.4 12 21.4 12 18 18.2 12 18.2 2.6 12 2.6 12z"/><circle cx="12" cy="12" r="2.7"/></svg>
+                未验收 · 102.0 MB
+              </div>
+            </div>
+          </div>
+          <div class="file-btns"><button>下载</button><button>添加到</button></div>
+        </div>
+      </div>
+      <div class="msg-tools">
+        <button class="m-tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.3"/><path d="M15.6 15.6L20 20"/></svg></button>
+        <button class="m-tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5s1.3 1.8 3.5 1.8 3.5-1.8 3.5-1.8"/><circle cx="9.2" cy="10" r="1" fill="currentColor"/><circle cx="14.8" cy="10" r="1" fill="currentColor"/></svg></button>
+        <button class="m-tool"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="18.5" cy="12" r="1.6"/></svg></button>
+      </div>
+    </div>
+
+    <div class="msg">
+      <div class="ava p1">梁</div>
+      <div class="msg-main">
+        <div class="msg-meta"><span class="name">梁楚裕</span><span>09月21日 14:58</span></div>
+        <div class="bubble">
+          <p><a class="mention">@冯泽苇</a> 8400 方舟 40 培训机遥控器和航线飞行出厂试飞日志</p>
+          <div class="reply-tip">1 条回复</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-sep">昨天 16:01</div>
+
+    <div class="msg">
+      <div class="ava p2">冯</div>
+      <div class="msg-main">
+        <div class="msg-meta"><span class="name">冯泽苇</span><span class="busy">忙碌中</span><span>09月21日 16:01</span></div>
+        <div class="bubble">
+          <div class="quote">
+            <div>梁楚裕：</div>
+            <div>@冯泽苇 8400 方舟 40 培训机遥控器和航线飞行出厂试飞日志</div>
+          </div>
+          <p><a class="mention">@梁楚裕</a> 8400 导航状态正常</p>
+          <div class="reactions">
+            <span class="reaction on">🤝 <b>1</b></span>
+            <span class="reaction">💬 回复</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="time-sep">今天 11:05</div>
+
+    <div class="sys-msg">
+      吴钧瀚 开启了群知识库 <b>无人机出厂测试数据分析群</b> 并设置了动态推送，
+      知识库内的文档新建、更新将在群内同步
+    </div>
+
+    <div class="time-sep">今天 11:26</div>
+
+    <div class="msg">
+      <div class="ava bot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="5" cy="5" r="2.3"/><circle cx="19" cy="5" r="2.3"/>
+          <circle cx="5" cy="19" r="2.3"/><circle cx="19" cy="19" r="2.3"/>
+          <rect x="9.2" y="9.2" width="5.6" height="5.6" rx="1.8"/>
+          <path d="M6.7 6.7l1.7 1.7M17.3 6.7l-1.7 1.7M6.7 17.3l1.7-1.7M17.3 17.3l-1.7-1.7"/>
+        </svg>
+      </div>
+      <div class="msg-main">
+        <div class="msg-meta">
+          <span class="name">试飞分析机器人</span>
+          <span class="bot-tag">机器人</span>
+          <span>今天 11:26</span>
+        </div>
+        <div class="bubble">
+          <p><a class="mention">@冯泽苇</a> <a class="mention">@张群修</a> <a class="mention">@梁楚裕</a>
+            监测到知识库「试飞日志」新增 <b>3</b> 份文件，已主动唤醒试飞数据分析流程。</p>
+          <p class="sub">按上传顺序逐份生成数据分析卡片，每份日志由判定人独立判定后，分别按无人机编号回传至运控后台。判定与提交完成后仅通知该份日志的上传者，全部判定完成不再另行通知。</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="flightCards"></div>
+    <div id="summaryBox"></div>
+
+  </main>
+
+  <footer class="composer">
+    <div class="quick-row">
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 4h6v5l3 3-3 3v5H9v-5l-3-3 3-3z"/></svg>钉住消息</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 7h14M5 12h9M5 17h11"/></svg>消息总结</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3.5 8.5A1.5 1.5 0 015 7h2.5l1.2-1.8h6.6L16.5 7H19a1.5 1.5 0 011.5 1.5v8A1.5 1.5 0 0119 18H5a1.5 1.5 0 01-1.5-1.5z"/><circle cx="12" cy="12.2" r="3"/></svg>水印拍照</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9.5 14.5a3 3 0 004.4 0l2.3-2.3a3 3 0 00-4.3-4.3l-1 1"/><path d="M12.5 11.5a3 3 0 00-4.4 0l-2.3 2.3a3 3 0 004.3 4.3l1-1"/></svg>群接龙</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V9z"/><path d="M13.5 3.5V9H19M8.5 13h7M8.5 16.5h4"/></svg>群日志</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 19V10M12 19V5.5M18 19v-6"/></svg>群投票</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 1.8"/></svg>看闲忙</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4" y="4.5" width="16" height="15" rx="2"/><path d="M4 9.5h16M9.5 9.5v10M4 14.5h16"/></svg>智能填表</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.3"/><path d="M15.6 15.6L20 20" stroke-linecap="round"/></svg>找文档</button>
+      <button class="quick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C10.5 5.2 8.4 4.6 5.5 4.6v13c2.9 0 5 .6 6.5 1.9 1.5-1.3 3.6-1.9 6.5-1.9v-13c-2.9 0-5 .6-6.5 1.9z"/><path d="M12 6.5v13"/></svg>群知识库</button>
+      <button class="quick more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 8.5h14M5 15.5h14"/></svg></button>
+    </div>
+
+    <div class="input-box">
+      <textarea placeholder="请输入消息" id="msgInput"></textarea>
+      <div class="input-tools">
+        <button class="itool" title="表情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5s1.3 1.8 3.5 1.8 3.5-1.8 3.5-1.8" stroke-linecap="round"/><circle cx="9.2" cy="10" r="1" fill="currentColor"/><circle cx="14.8" cy="10" r="1" fill="currentColor"/></svg></button>
+        <button class="itool" title="点赞"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10.5v9H4.5v-9zM7 10.5l4-7a2 2 0 012.8 1.8L13 9h5.2a1.8 1.8 0 011.75 2.2l-1.3 6.2A1.8 1.8 0 0116.9 19H7"/></svg></button>
+        <button class="itool" title="文字格式"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 19l4.6-13h1.2L15.4 19M7.4 14.6h6.6"/><path d="M17.5 9.5h3.5"/></svg></button>
+        <button class="itool" title="截图"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="7" cy="17.5" r="2.6"/><circle cx="17" cy="17.5" r="2.6"/><path d="M9.6 17.5h4.8M8 15L12 5l4 10"/></svg></button>
+        <button class="itool" title="文件"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3.5H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V9z"/><path d="M13.5 3.5V9H19"/></svg></button>
+        <button class="itool" title="更多"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 8.5v7M8.5 12h7"/></svg></button>
+        <span class="gap"></span>
+        <button class="itool" title="展开"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M9 5.5v13M15 5.5v13"/></svg></button>
+        <button class="send-btn" disabled id="sendBtn">发送(S)</button>
+        <button class="send-caret" title="发送选项"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 9.5l5.5 5 5.5-5"/></svg></button>
+      </div>
+    </div>
+    <div class="enter-hint">Enter/Alt+S 发送，Ctrl+Enter 换行</div>
+  </footer>
+</div>
+
+<aside class="tw" id="twPanel">
+  <div class="tw-head">
+    <span><span class="dot"></span>Tweaks</span>
+    <button id="twToggle" title="收起/展开">–</button>
+  </div>
+  <div class="tw-body">
+    <div class="tw-group">
+      <div class="tw-label">批次状态</div>
+      <div class="tw-radios" id="stateRadios">
+        <label><input type="radio" name="st" value="stream" checked>流式解析（逐份生成）</label>
+        <label><input type="radio" name="st" value="ready">全部待判定</label>
+        <label><input type="radio" name="st" value="mixed">混合结果（合格 · 不合格 · 失败）</label>
+      </div>
+    </div>
+    <div class="tw-group">
+      <div class="tw-label">消息密度</div>
+      <div class="tw-radios" id="densityRadios">
+        <label><input type="radio" name="density" value="comfy" checked>舒适</label>
+        <label><input type="radio" name="density" value="compact">紧凑</label>
+      </div>
+    </div>
+    <div class="tw-group">
+      <div class="tw-label">预览时自动播放流式</div>
+      <div class="tw-radios">
+        <label><input type="checkbox" id="autoPlay" checked>开启逐段流式渲染</label>
+      </div>
+    </div>
+    <button class="tw-btn" id="replayBtn">重新播放流式动画</button>
+  </div>
+</aside>
+
+<script>
+(function(){
+  'use strict';
+
+  var DRONE =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+      '<circle cx="5" cy="5" r="2.3"/><circle cx="19" cy="5" r="2.3"/>' +
+      '<circle cx="5" cy="19" r="2.3"/><circle cx="19" cy="19" r="2.3"/>' +
+      '<rect x="9.2" y="9.2" width="5.6" height="5.6" rx="1.8"/>' +
+      '<path d="M6.7 6.7l1.7 1.7M17.3 6.7l-1.7 1.7M6.7 17.3l1.7-1.7M17.3 17.3l-1.7-1.7"/></svg>';
+
+  var LINK_ICON =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">' +
+      '<path d="M10.6 13.4a3.6 3.6 0 005.1 0l2.9-2.9a3.6 3.6 0 00-5.1-5.1l-1.3 1.3"/>' +
+      '<path d="M13.4 10.6a3.6 3.6 0 00-5.1 0l-2.9 2.9a3.6 3.6 0 005.1 5.1l1.3-1.3"/></svg>';
+
+  var DOC_ICON =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M13.5 3.5H7a2 2 0 00-2 2v13a2 2 0 002 2h10a2 2 0 002-2V9z"/><path d="M13.5 3.5V9H19"/></svg>';
+
+  var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.6l4.4 4.4L19 7.4"/></svg>';
+  var CROSS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>';
+  var WARN_ICON  = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 7.5v6M12 17h.01"/></svg>';
+
+  var ABNORMAL = [
+    '校准磁力计',
+    '视觉VIO过早失效，VLOC未生效',
+    '从天线异常',
+    '更换IMU',
+    '更换磁力计',
+    '更换GPS',
+    'sfvision版本过低',
+    '未生成飞行日志',
+    '垂起动力断联，可能电调连接线接触不良',
+    '右空速计动压静压皮托管装反',
+    '加速度有异常',
+    '振动异常'
+  ];
+
+  var FLIGHTS = [
+    { sn:'8400', model:'方舟 40 培训机', file:'plane-8400_log11-…-0917-133918.sfbin', size:'102.0 MB', uploader:'梁楚裕' },
+    { sn:'8399', model:'方舟 40 培训机', file:'plane-8399_log07-…-0917-142205.sfbin', size:'96.4 MB',  uploader:'冯泽苇' },
+    { sn:'8421', model:'方舟 40 培训机', file:'plane-8421_log03-…-0917-150812.sfbin', size:'118.7 MB', uploader:'梁楚裕' }
+  ];
+
+  var CURRENT_USER = { name:'吴钧瀚', code:'01458029' };
+  var LOG_URL = 'https://sf-alidocs.dingtalk.com/i/nodes/dxXB52LJqnb9qONkCZMKRQXA8qjMp697?utm_scene=team_space';
+
+  var CHAT     = document.getElementById('chatBody');
+  var STACK    = document.getElementById('flightCards');
+  var SUMMARY  = document.getElementById('summaryBox');
+
+  var cards = [];
+  var token = 0;
+  var autoPlay = true;
+
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function nowHM(){
+    var d = new Date(), h = d.getHours(), m = d.getMinutes();
+    return (h < 10 ? '0' + h : h) + ':' + (m < 10 ? '0' + m : m);
+  }
+  function scrollBottom(){ CHAT.scrollTop = CHAT.scrollHeight; }
+
+  function buildCard(f){
+    var msg = document.createElement('div');
+    msg.className = 'msg';
+    msg.innerHTML =
+      '<div class="ava bot">' + DRONE + '</div>' +
+      '<div class="msg-main">' +
+        '<div class="msg-meta"><span class="name">试飞分析机器人</span>' +
+          '<span class="bot-tag">机器人</span><span>今天 11:26</span></div>' +
+        '<div class="bubble card-bubble">' +
+          '<div class="card-inner">' +
+            '<div class="queue-ph" data-queue>排队等待解析 · 机器人正按上传顺序逐份生成数据分析卡片</div>' +
+
+            '<div class="card-head" data-step="1">' +
+              '<div class="card-head-ico">' + DRONE + '</div>' +
+              '<div class="card-head-main">' +
+                '<div class="card-head-l1">' +
+                  '<span class="sn-pill">无人机机型：' + esc(f.model) + '</span>' +
+                  '<span class="sn-pill">无人机编号：' + esc(f.sn) + '</span>' +
+                  '<span class="st-badge" data-badge>排队中</span>' +
+                '</div>' +
+                '<div class="card-head-l2">' +
+                  '<span class="src-file">' + DOC_ICON + '<span>' + esc(f.file) + '</span></span>' +
+                  '<span class="sep">·</span><span>上传人 ' + esc(f.uploader) + '</span>' +
+                  '<span class="sep">·</span><span>' + esc(f.size) + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+
+            '<div class="log-link-row" data-step="2">' +
+              '<a class="log-link" href="' + LOG_URL + '" target="_blank" rel="noopener noreferrer">' +
+                LINK_ICON + '<span class="lk-txt">试飞日志分享链接 · sf-alidocs.dingtalk.com</span></a>' +
+            '</div>' +
+            '<div class="card-div" data-step="2"></div>' +
+
+            '<div class="card-section" data-step="3">' +
+              '<div class="section-head">' +
+                '<span class="section-title">常见异常情况</span>' +
+                '<span class="section-hint" data-hint>可多选 · 已选 0 项</span>' +
+              '</div>' +
+              '<div class="chip-grid" data-grid></div>' +
+            '</div>' +
+
+            '<div class="other-field" data-step="4">' +
+              '<div class="of-head"><span class="of-title">其他异常情况</span>' +
+                '<span class="of-hint">选填 · 可逐条描述，提交时与所选异常项一并同步</span></div>' +
+              '<textarea data-other placeholder="例如：机臂 3 号电机异响，悬停时偶发掉高…"></textarea>' +
+            '</div>' +
+
+            '<div class="card-foot" data-step="5">' +
+              '<div class="foot-actions">' +
+                '<button class="btn-judge pass" data-pass>' + CHECK_ICON + '判定合格</button>' +
+                '<button class="btn-judge fail" data-fail>' + CROSS_ICON + '判定不合格</button>' +
+              '</div>' +
+              '<div class="card-alert" data-alert></div>' +
+            '</div>' +
+
+            '<div data-result></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    STACK.appendChild(msg);
+
+    var c = {
+      data: f,
+      msg: msg,
+      el: msg.querySelector('.card-bubble'),
+      queue: msg.querySelector('[data-queue]'),
+      badge: msg.querySelector('[data-badge]'),
+      hint: msg.querySelector('[data-hint]'),
+      grid: msg.querySelector('[data-grid]'),
+      other: msg.querySelector('[data-other]'),
+      alert: msg.querySelector('[data-alert]'),
+      result: msg.querySelector('[data-result]'),
+      btnPass: msg.querySelector('[data-pass]'),
+      btnFail: msg.querySelector('[data-fail]'),
+      chips: [],
+      selected: [],
+      phase: 'queued',
+      submitting: false
+    };
+
+    ABNORMAL.forEach(function(text, k){
+      var el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'chip is-hidden';
+      el.innerHTML =
+        '<span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.6l4.4 4.4L19 7.4"/></svg></span>' +
+        '<span class="txt">' + esc(text) + '</span>' +
+        '<span class="idx">' + String(k + 1).padStart(2, '0') + '</span>';
+      el.addEventListener('click', function(){ toggleChip(c, el, text); });
+      c.grid.appendChild(el);
+      c.chips.push(el);
+    });
+
+    c.btnPass.addEventListener('click', function(){ submit(c, 'pass'); });
+    c.btnFail.addEventListener('click', function(){ submit(c, 'fail'); });
+    c.other.addEventListener('input', function(){ hideAlert(c); });
+
+    return c;
+  }
+
+  function toggleChip(c, el, text){
+    if (c.phase !== 'ready' || c.submitting) return;
+    var idx = c.selected.findIndex(function(s){ return s.el === el; });
+    if (idx >= 0){ c.selected.splice(idx, 1); el.classList.remove('on'); }
+    else { c.selected.push({ el: el, text: text }); el.classList.add('on'); }
+    updateHint(c);
+    hideAlert(c);
+  }
+
+  function updateHint(c){
+    var n = c.selected.length;
+    c.hint.textContent = n > 0 ? ('可多选 · 已选 ' + n + ' 项') : '可多选 · 已选 0 项';
+    c.hint.classList.toggle('strong', n > 0);
+  }
+
+  function reasonsOf(c){
+    var list = c.selected.map(function(s){ return s.text; });
+    var other = c.other.value.trim();
+    if (other) list.push(other);
+    return list;
+  }
+
+  function setBadge(c, cls, text){
+    c.badge.className = 'st-badge' + (cls ? ' ' + cls : '');
+    c.badge.textContent = text;
+  }
+
+  function showAlert(c, msg, type){
+    c.alert.className = 'card-alert show ' + (type || 'warn');
+    c.alert.textContent = msg;
+  }
+  function hideAlert(c){
+    c.alert.className = 'card-alert';
+    c.alert.textContent = '';
+  }
+
+  function hideAll(c){
+    c.el.querySelectorAll('[data-step]').forEach(function(el){ el.classList.add('is-hidden'); });
+    c.chips.forEach(function(el){ el.classList.add('is-hidden'); });
+  }
+  function showAll(c){
+    c.el.querySelectorAll('[data-step]').forEach(function(el){ el.classList.remove('is-hidden'); });
+    c.chips.forEach(function(el){ el.classList.remove('is-hidden'); });
+  }
+  function reveal(c, n){
+    c.el.querySelectorAll('[data-step="' + n + '"]').forEach(function(el){ el.classList.remove('is-hidden'); });
+  }
+
+  function setButtons(c, enabled){
+    c.btnPass.disabled = !enabled;
+    c.btnFail.disabled = !enabled;
+    c.btnPass.classList.remove('loading');
+    c.btnFail.classList.remove('loading');
+    if (enabled){
+      c.btnPass.innerHTML = CHECK_ICON + '判定合格';
+      c.btnFail.innerHTML = CROSS_ICON + '判定不合格';
+    }
+  }
+
+  function resetCard(c){
+    c.el.classList.remove('card-resolved');
+    c.queue.style.display = 'block';
+    c.result.innerHTML = '';
+    c.other.value = '';
+    c.other.readOnly = false;
+    c.selected = [];
+    c.chips.forEach(function(el){ el.classList.remove('on'); });
+    c.phase = 'queued';
+    c.submitting = false;
+    setBadge(c, '', '排队中');
+    updateHint(c);
+    hideAlert(c);
+    setButtons(c, false);
+    hideAll(c);
+  }
+
+  async function streamCard(c, tk){
+    c.msg.style.display = '';
+    c.queue.style.display = 'none';
+    c.phase = 'streaming';
+    setBadge(c, 'streaming', '解析中');
+    updateQueueText();
+    scrollBottom();
+
+    await sleep(380); if (tk !== token) return false; reveal(c, 1); scrollBottom();
+    await sleep(340); if (tk !== token) return false; reveal(c, 2); scrollBottom();
+    await sleep(300); if (tk !== token) return false; reveal(c, 3); scrollBottom();
+
+    for (var k = 0; k < c.chips.length; k++){
+      await sleep(48); if (tk !== token) return false;
+      c.chips[k].classList.remove('is-hidden');
+    }
+    await sleep(160); if (tk !== token) return false; reveal(c, 4); scrollBottom();
+    await sleep(280); if (tk !== token) return false; reveal(c, 5); scrollBottom();
+
+    await sleep(200); if (tk !== token) return false;
+    c.phase = 'ready';
+    setBadge(c, 'ready', '待判定');
+    setButtons(c, true);
+    scrollBottom();
+    return true;
+  }
+
+  function updateQueueText(){
+    cards.forEach(function(c){
+      if (c.phase === 'queued'){
+        c.queue.textContent = '排队等待解析 · 机器人正按上传顺序逐份生成数据分析卡片';
+      }
+    });
+  }
+
+  async function playAll(){
+    var tk = ++token;
+    cards.forEach(resetCard);
+    SUMMARY.innerHTML = '';
+    updateQueueText();
+    scrollBottom();
+
+    for (var i = 0; i < cards.length; i++){
+      if (tk !== token) return;
+      var ok = await streamCard(cards[i], tk);
+      if (!ok) return;
+      await sleep(240);
+    }
+  }
+
+  function showAllReady(){
+    token++;
+    cards.forEach(function(c){
+      resetCard(c);
+      c.msg.style.display = '';
+      c.queue.style.display = 'none';
+      showAll(c);
+      c.phase = 'ready';
+      setBadge(c, 'ready', '待判定');
+      setButtons(c, true);
+    });
+    SUMMARY.innerHTML = '';
+    scrollBottom();
+  }
+
+  function submit(c, kind){
+    if (c.phase !== 'ready' || c.submitting) return;
+    var reasons = reasonsOf(c);
+    if (kind === 'fail' && reasons.length === 0){
+      showAlert(c, '判定「不合格」需至少勾选一项常见异常，或在“其他异常情况”文本框中填写说明。', 'warn');
+      return;
+    }
+
+    c.submitting = true;
+    hideAlert(c);
+    setButtons(c, false);
+
+    var target = kind === 'pass' ? c.btnPass : c.btnFail;
+    target.classList.add('loading');
+    target.innerHTML = (kind === 'pass' ? CHECK_ICON : CROSS_ICON) + '正在提交至运控后台…';
+
+    showAlert(c, '正在绑定当前判定人 ' + CURRENT_USER.name + '（' + CURRENT_USER.code + '），并按无人机编号 ' +
+      c.data.sn + ' 写入运控后台「试飞报告 · 数据分析」…', 'info');
+
+    setTimeout(function(){ resolveCard(c, kind, reasons); }, 950);
+  }
+
+  function resolveCard(c, kind, reasons){
+    c.phase = kind;
+    c.submitting = false;
+    c.el.classList.add('card-resolved');
+    c.other.readOnly = true;
+    setButtons(c, false);
+    hideAlert(c);
+
+    var who = esc(CURRENT_USER.name) + '（' + esc(CURRENT_USER.code) + '）';
+    var reasonText = reasons && reasons.length ? esc(reasons.join('、')) : '';
+
+    if (kind === 'pass'){
+      setBadge(c, 'pass', '合格');
+      c.result.innerHTML =
+        '<div class="card-result pass"><div class="cr-ico">' + CHECK_ICON + '</div><div>' +
+          '<div class="cr-title">判定合格</div>' +
+          '<div class="cr-sub">判定人 ' + who + '</div>' +
+        '</div></div>';
+      followUp(c, 'pass',
+        '已成功提交 <b>' + esc(c.data.sn) + '</b> 编号无人机数据分析结果，判定为 ' +
+        '<b style="color:#00A870">通过</b>。（判定人 ' + who + '）');
+    }
+
+    if (kind === 'fail'){
+      setBadge(c, 'fail', '不合格');
+      c.result.innerHTML =
+        '<div class="card-result fail"><div class="cr-ico">' + CROSS_ICON + '</div><div>' +
+          '<div class="cr-title">判定不合格</div>' +
+          '<div class="cr-sub">判定人 ' + who + '</div>' +
+        '</div></div>';
+      followUp(c, 'fail',
+        '已成功提交 <b>' + esc(c.data.sn) + '</b> 编号无人机数据分析结果，判定为 ' +
+        '<b style="color:#F53F3F">不通过</b>' + (reasonText ? '，原因：' + reasonText : '') +
+        '。（判定人 ' + who + '）');
+    }
+
+    if (kind === 'error'){
+      setBadge(c, 'error', '提交失败');
+      c.result.innerHTML =
+        '<div class="card-result error"><div class="cr-ico">' + WARN_ICON + '</div><div>' +
+          '<div class="cr-title">提交失败</div>' +
+          '<div class="cr-sub">判定人 ' + who + ' · 原因：运控后台数据分析记录已存在</div>' +
+        '</div></div>';
+      followUp(c, 'error',
+        '<b>' + esc(c.data.sn) + '</b> 编号无人机数据分析结果提交失败，请联系相关人员。' +
+        '（原因：后台数据分析记录已存在 · 判定人 ' + who + '）');
+    }
+
+    scrollBottom();
+  }
+
+  function followUp(c, kind, text){
+    var targets = [c.data.uploader];
+    if (kind === 'error') targets.push(CURRENT_USER.name);
+
+    var mentions = targets
+      .filter(function(n, i){ return targets.indexOf(n) === i; })
+      .map(function(n){ return '<a class="mention">@' + esc(n) + '</a>'; })
+      .join(' ');
+
+    var wrap = document.createElement('div');
+    wrap.className = 'msg';
+    wrap.innerHTML =
+      '<div class="ava bot">' + DRONE + '</div>' +
+      '<div class="msg-main">' +
+        '<div class="msg-meta"><span class="name">试飞分析机器人</span>' +
+          '<span class="bot-tag">机器人</span><span>' + nowHM() + '</span></div>' +
+        '<div class="bubble"><p>' + mentions + ' ' + text + '</p></div>' +
+      '</div>';
+    SUMMARY.appendChild(wrap);
+    setTimeout(scrollBottom, 60);
+  }
+
+  function presetFail(c){
+    [11, 3].forEach(function(i){
+      var el = c.chips[i];
+      if (el && !el.classList.contains('on')){
+        el.classList.add('on');
+        c.selected.push({ el: el, text: ABNORMAL[i] });
+      }
+    });
+    c.other.value = '机臂 3 号电机异响，悬停时偶发掉高';
+    updateHint(c);
+  }
+
+  document.querySelectorAll('#stateRadios input').forEach(function(r){
+    r.addEventListener('change', function(){
+      if (!r.checked) return;
+      if (r.value === 'stream'){ playAll(); }
+      else if (r.value === 'ready'){ showAllReady(); }
+      else if (r.value === 'mixed'){
+        showAllReady();
+        presetFail(cards[1]);
+        setTimeout(function(){ resolveCard(cards[0], 'pass', []); }, 260);
+        setTimeout(function(){ resolveCard(cards[1], 'fail', reasonsOf(cards[1])); }, 900);
+        setTimeout(function(){ resolveCard(cards[2], 'error', []); }, 1560);
+      }
+    });
+  });
+
+  document.querySelectorAll('#densityRadios input').forEach(function(r){
+    r.addEventListener('change', function(){
+      if (!r.checked) return;
+      document.getElementById('win').classList.toggle('compact', r.value === 'compact');
+    });
+  });
+
+  document.getElementById('autoPlay').addEventListener('change', function(e){ autoPlay = e.target.checked; });
+
+  document.getElementById('replayBtn').addEventListener('click', function(){
+    document.querySelector('#stateRadios input[value="stream"]').checked = true;
+    playAll();
+  });
+
+  document.getElementById('twToggle').addEventListener('click', function(){
+    document.getElementById('twPanel').classList.toggle('collapsed');
+  });
+
+  FLIGHTS.forEach(function(f){ cards.push(buildCard(f)); });
+  scrollBottom();
+
+  var msgInput = document.getElementById('msgInput');
+  var sendBtn = document.getElementById('sendBtn');
+  msgInput.addEventListener('input', function(){
+    sendBtn.disabled = msgInput.value.trim().length === 0;
+  });
+
+  if (autoPlay) setTimeout(playAll, 500);
+  else showAllReady();
+
+})();
+</script>
+</body>
+</html>

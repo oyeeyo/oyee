@@ -1,0 +1,1180 @@
+<!--
+  原型版本历史日志
+  ─────────────────────────────────────────────
+  V1 (2026-09-02) 初始创建：ARK40 扫码履历 + 出厂流程 H5 原型
+  V1 修订 (2026-09-02)：
+    [修改] 电子签名去除姓名输入，改为登录态自动绑定姓名/工号（mock：张三 01458029）
+    [修改] 试飞表单展示字段收敛为：检验项目→检验内容→检验要求
+    [修改] 出货检验表单展示字段收敛为：类别→检验项目→检验内容→检验要求
+    [删除] 出货检验表单「适用对象 仅新飞机」字段
+  V2 (2026-09-02)：
+    [修改] 试飞模板按真实表单改为三标签：检验项目→检验内容→检验要求（试飞情况/数据分析，共 19 条检验要求）
+    [修改] 出货检验模板按真实表单改为四标签：类别→检验项目→检验内容→判定标准要求（整机结构/整机动力/航电功能性/可靠性测试）
+    [修改] 明细 Excel 表头同步为四标签，类别与检验项目按 rowspan 合并
+    [删除] 试飞表单「机长填写 · 需电子签名」标签及机长签名卡
+    [新增] 出货检验表单「检验日期（系统累计 · 只读）」标签
+    [新增] 扫码落地页（模拟扫码 → 登录判断 → 路由）
+  V3 (2026-09-02)：
+    [删除] 移除所有「机长填写 · 需电子签名」标签字段（含残留 CSS 类）
+    [恢复] 试飞表单机长电子签名卡（签署人登录自动绑定、无姓名输入），导航/控制分析判定仍需机长签名
+  V3 修订 (2026-09-02)：
+    [修改] 试飞填写/出货检验（含后台流转页）顶栏副文案改为「飞机编号：OB-ARK40-2404-1」
+    [新增] 提交时存在未判定检验项：未判定项红色描边闪烁 2 秒并平滑滚动至第一个未判定项（试飞/出货检验通用）
+    [新增] 出货检验表单支持「暂存本地」
+    [修改] 试飞日志上传与异常记录填写不再受「先完成全部判定」限制，随时可填可传
+  V5 (2026-09-02) 回退版：
+    [回退] 回退到「手机壳桌面预览」之前状态：移除手机壳/灵动岛/桌面预览封装与壳内滚动容器（同时不含 V4 参考图蓝色改版）
+    [保留] 飞机编号顶栏、未判定项红闪+滚动定位、出货检验暂存、试飞日志/异常记录解锁、机长签名卡、三/四标签模板等
+  V5 修订 (2026-09-02)：
+    [修复] 判定合格/不合格、上传试飞日志、签名完成等同页重渲染不再跳回顶部（保持滚动位置）
+    [修改] 出货检验报告明细顶栏右侧编号改为「飞机编号：OB-ARK40-2404-1」
+    [修改] 履历页整机检验报告卡「报告编号」字段改为「飞机编号」（值 OB-ARK40-2404-1）
+    [新增] 试飞日志支持重传与删除后重传（已上传态显示「重传/删除」操作）
+    [新增] 整体检验判定弹窗（试飞/出货检验提交通用）展示「合格 X 项 · 不合格 Y 项」统计；出货检验提交 likewise 弹出整体判定：合格→后台审核，不合格→锁定驳回并生成新报告
+    [新增] 电子签名支持重签（已签态显示签名+「重签」按钮，重新手写覆盖）
+    [删除] 试飞报告不再需要电子签名：移除机长签名卡与提交签名校验（出货检验仍保留检验人签名+重签）
+    [修改] 试飞填写层次强化：检验内容改为独立容器框，框内每条检验要求为灰底小框（分组→检验内容→检验要求三级层次）
+    [修改] 「检验要求/判定标准要求」标签独立成行（小字 caption），要求正文另起一行展示，标签与内容分层不挤排
+    [修改] 配色去重叠：检验要求小框改白底（边框分层），判定按钮未选中态改浅灰底+深灰字的中性控件色，与内容灰字及选中浅绿/浅红区分
+    [修改] 判定按钮未选中态回调为白底+微边框+深灰字（去除灰底填充），与整体白底色调协调；选中态浅绿/浅红不变
+    [新增] 飞机履历页（客户/员工视图：无人机 SVG + 设备概况/技术参数/生产信息 + 整机检验报告卡）
+    [新增] 出货检验报告明细页（Excel 表格样式 + 电子公章 + 检验/审核/批准电子签名）
+    [新增] 试飞填写页（模板分组折叠面板、判定必选、试飞日志必传、机长电子签名、整体判定弹窗）
+    [新增] 出货检验填写页（类别分组、检验人签名、后台审核/批准 5s 模拟流转、驳回重生成）
+    [新增] 调试面板（登录态、流程阶段、后台审核/批准随机种子、重置）
+  V6 (2026-09-02) 生产环境文案清理：
+    [删除] 流转页顶栏「· 后台流转」后缀；时间线「状态流转约 5 秒，前台只读」「已自动回填检验/审核/批准三日期与三人签名」等测试备注
+    [删除] 全部「（系统累计 · 只读）」「（只读）」「（随新报告携带）」「（携带驳回原因）」类测试环境备注字段
+    [修改] 「后台审核/后台批准」统一为「审核/批准」；提交与流转 toast 不再提示 5 秒模拟时长
+    [修改] 整体检验判定弹窗与检验人签名卡文案改为生产语气（提交审核与批准、批准通过后飞机准予出厂）
+  V7 (2026-04-30) 签名体验升级 + 试飞表单精简：
+    [修改] 电子签名板改横版：点击「签名」弹出全屏横版签名板（内容旋转 90°，横向大画布），保证充裕的署名空间；手写坐标已适配旋转映射
+    [修改] 签名卡按钮「去签名」改为「签名」
+    [删除] 签名卡副文案「提交后进入审核与批准 · 签署人 xxx」；签名板内「（登录后自动绑定，无需输入）」备注
+    [新增] 「签名复用」按钮：存在上次签名时展示，点击复现上次签名样式；重新签名后自动覆盖上次签名（S.lastSign 持久化）
+    [删除] 试飞页「上传试飞日志」功能点：上传框/重传/删除操作及提交必传校验全部移除，原分组仅保留异常记录（选填）
+  V8 (2026-04-30) 签名板内新增「复用签名」按钮：
+    [新增] 横版签名板「清除重写」旁新增「复用签名」按钮：未完成首签时点击提示「请先完成首签」；已有上次签名（S.lastSign）则直接复用并关闭签名板
+  V9 (2026-04-30) 签名卡「签名复用」按钮常显：
+    [修改] 出货检验签名卡未签名态：「签名」按钮旁始终提供「签名复用」按钮（不再依赖是否存在上次签名）；无上次签名时点击提示「暂无上次签名可复用」
+  V10 (2026-04-30) 出货检验报告明细页改为「整页正式文书」（扫描件/PDF 归档件样式）：
+    [修改] 明细页整体重构：检验项目明细、其他异常记录、出厂检查结论、检验/审核/批准签名与电子公章全部整合进同一张「文书纸」，作为不可分割的整体归档件呈现
+    [新增] 文书视觉：公司红头（红色公司名+红色双线分隔）、居中文书标题「出货检验报告」、报告信息栏（报告编号/飞机编号/产品型号/报告日期）、一/二/三/四分节、宋体正文、斜向公司水印
+    [新增] 签署栏改三列表单式（检验/审核/批准 各含签名、姓名·判定、日期），电子公章以正片叠底（multiply）混合压在签署栏上，呈现真实盖章效果
+    [新增] 页脚「第 1 页 · 共 1 页」与电子归档声明，强化扫描件/PDF 整体感
+    [删除] 旧 xwrap 卡片式头部/底部样式（.xwrap/.xtitle/.xfoot），由文书版式替代（.xtable/.sign-strip 等仍被其他页复用，保留）
+  V11 (2026-04-30) 出货检验报告明细页按用户参考样张重构为「一张表一体」检测报告扫描件样式：
+    [修改] 报告信息栏、检验明细（新增序号列）、其他异常记录、检验结论、签署栏全部并入同一张连续边框表格（.doc-one），整份明细为一体、不可分割
+    [修改] 页眉改检测报告式：左报告编号 / 居中大标题「出货检验报告」/ 右页码；移除红头与一/二/三/四分节标题
+    [修改] 签署栏改表内横排下划线式（检验/审核/批准/签发日期），电子公章压盖签署区；表格下新增声明段落与公司信息页脚
+    [删除] 明细页旧分节样式（.doc-head/.doc-org/.doc-rule/.doc-meta/.doc-sec/.doc-box/.doc-signs/.ds-* 等）
+  V11 修订 (2026-04-30) 明细页签署区布局调整：
+    [删除] 报告信息栏「检验日期」字段（产品型号行合并占满整行）
+    [修改] 「签发日期」移出签署横排，单独成行置于电子公章正下方（居中）
+    [删除] 表格下方「声明」段落及其全部内容（含 .doc-note 样式）
+    [修改] 签署区改左右分栏：左侧检验/审核/批准三签名横排、间距加大（gap 16px→30px）；右侧电子公章，签发日期单独一行置于公章正下方居中，层次与留白更清晰
+  V12 (2026-04-30) 明细页报告头部信息栏与日期章：
+    [修改] 报告信息栏按参考图重构为三列头部：产品型号/飞机编号/检验人（电子签名）+ 检验日期/审核人/批准日期 + 签发日期（加盖日期章）
+    [新增] 「日期章」红色圆形印章（顺丰航空有限公司 / SF AIRLINES CO., LTD. / 五角星 / yyyy.MM.dd），盖于签发日期处；移除签署区原「签发日期」文本行
+    [删除] 检验结论中「经逐项检验，本机 N 项检验项目全部符合判定标准要求，检验合格，准予出厂。」文案，仅保留 ☑合格/□不合格
+    [删除] 报告信息栏原「报告日期」行与产品型号行（字段并入新头部）
+  V14 (2026-04-30) 明细页头部字段与印章调整：
+    [修改] 签署区右侧原「检验专用章」电子公章替换为「签发日期 + 日期章」，日期章压盖在签发日期文字上
+    [删除] 报告信息栏头部中「检验人」「审核人」「批准日期」「签发日期」字段（不再体现三方人员与批准日期）
+    [新增] 报告信息栏头部新增「SN码」字段（取飞机字典 SPECS.sn）
+    [修改] 头部网格由三列改两列（产品型号/飞机编号 + SN码/检验日期，2×2 布局）
+  V15 (2026-04-30) 明细页整份文书「概览 + 图片式放大预览」：
+    [修改] 「报告编号：OB-ARK40-2404-1 / 出货检验报告」页眉并入明细表格，作为一张表的首行，与报告明细成为不可分割的整体
+    [删除] 页眉「第 1 页，共 1 页」页码字段
+    [新增] 明细页默认展示整份文书的等比缩小概览：自动缩放至一屏内完整可见，无需拖动即可看到所有信息
+    [新增] 点击文书打开图片预览风格的全屏放大查看（深色遮罩 + 顶部标题栏 + 关闭按钮，文书按原版式放大、可自由滚动），点击遮罩空白处亦可关闭
+  V16 (2026-04-30) 字段更名 + 预览完整性修复 + 明细样式优化：
+    [修改] 明细页页眉「报告编号」字段更名为「表单受控号」（值不变）
+    [修复] 预览显示不全：概览缩放在字体加载完成后二次测量重算，避免文书底部被裁切；全屏放大查看改为「适配屏宽等比缩放 + 纵向滚动」，打开即完整看到整份文书（原版式 640px 宽不再横向溢出屏幕）
+    [修改] 明细样式优化：明细单元格改顶端对齐（序号/类别/项目/结果列保持居中）、行距与内边距加大、表头底色加深文字加深、检验记录/检验结果列加宽、检验结论行左对齐放大并加浅底强调、头部信息栏字号与行距增大、文书纸增加投影提升扫描件套感
+    [删除] 签署区右侧「签发日期：yyyy-MM-dd」文本行——日期章章面自带日期，仅保留日期章加盖（.sign-date/.lb 相关样式一并移除）
+  V17 (2026-04-30) 整体判定去默认值 + 暂存按钮更名：
+    [修改] 整体检验判定弹窗（试飞/出货检验通用）不再按不合格项数量预置结论：进入弹窗时合格/不合格均未选中，需人工手动选择
+    [新增] 未选择判定结果时「确认提交」置灰不可点，文案提示「请根据各项检验结果手动给出整体判定，系统不提供默认结论」；点选后按钮恢复可点并更新判定说明
+    [修改] 「暂存本地」按钮统一更名为「暂存」（试飞填写、出货检验填写），提交后提示「已暂存」
+  V18 (2026-04-30) 移植 APP 原型（proto_2295ba8aaaec1fa598b05ef713b9_V11）试飞/出货检验填写与飞机履历的样式、交互与内容（其余界面不变）：
+    [新增] 检验项现场照片上传（试飞/出货检验填写页）：每个检验项「检验结果」下方新增「现场照片」区，选填、每项最多 4 张；支持多选上传、缩略图预览、单张删除、点击全屏放大（深色遮罩 .img-mask）；上传自动等比压缩（最长边 800px）
+    [新增] 演示数据内置示例照片（试飞/出货检验种子报告部分检验项带 1~2 张示意照片）；本地存储键升级 ark40_h5_proto_v2；存储写入失败提示「本地存储空间不足，本次改动仅保留在当前会话」
+    [修改] 试飞填写页对齐源文件版式：检验内容大框 + 框内检验要求虚线分隔（.sub-req，替代容器小框三级层次）；「检验要求：」恢复行内灰字；「异常记录」分组改「其他异常记录（选填）」卡片式；底部新增填写人自动记录提示（.ro-hint）
+    [新增] 试飞填写人记录：整体判定确认时自动绑定登录账号（姓名+工号+时间）写入报告
+    [新增] 出货检验明细文书检验记录单元格内联照片缩略图（.doc-thumbs），点击可全屏放大
+    [修改] 出货检验签名卡对齐源文件：标题下展示签署人姓名（工号）小字；已签态「重签 + 复用签名」、未签态「签名 + 复用签名」
+    [修改] 历史报告列表对齐源文件：去掉「已锁定」字样与报告编号，展示「第 x 次试飞/出货检验 + 已通过/未通过/已驳回」
+    [修改] 出货检验报告明细页文书版式对齐源文件：居中大字标题 +「表单受控号」行、四列带框信息栏（产品型号/飞机编号 + SN码/检验日期）、深色细边框明细表（#444）、表下加粗「检验结论」段落、签署横排（检验/审核/批准 + 签发日期加盖日期章）、公司/地址/电话三段式页脚；移除斜向水印与文书投影
+    [保留] 整份文书「概览 + 点击放大」交互与按屏宽等比缩放、字体就绪二次测量（本工作空间 V15/V16 修复）
+  V19 (2026-04-30) 试飞两阶段拆分 + 调试一键合格：
+    [修改] 试飞报告拆分为「飞行情况 / 数据分析」两部分：测试人员仅填写飞行情况（数据分析分组只读，标注「算法人员反馈」）；飞行情况全部判定并整体判定合格后，进入「数据分析」等待子状态（层级与出货检验「审核/批准」同级，样式与随机种子判定逻辑一致，约 5s 模拟算法人员反馈）
+    [修改] 试飞通过条件：飞行情况整体判定合格 且 数据分析合格，两项均合格才转入出货检验；数据分析不合格则试飞标记未通过（记录环节与原因），可生成新试飞报告，旧报告保留履历
+    [新增] 试飞阶段时间线等待界面（提交飞行情况 → 飞行情况整体判定 → 数据分析 → 试飞通过 · 转入出货检验）
+    [新增] 调试面板「数据分析种子」（随机/必合格/必不合格）
+    [新增] 调试面板「一键合格（演示）」：试飞一键合格（飞行情况全部判定合格 + 数据分析必合格）、出货检验一键合格（全部判定合格 + 自动签名 + 审核/批准必通过）
+    [确认] 界面无「（系统累计 · 只读）」文案（V6 已清理，本版复查仅存在于版本日志注释中）
+  V20 (2026-04-30) 试飞情况更名 + 等待界面两阶段自动流转：
+    [修改] 字段名称「飞行情况」全局更名为「试飞情况」（模板分组、提交按钮、时间线、判定弹窗说明、调试面板文案）
+    [修改] 试飞报告等待界面精简为两个阶段：提交试飞情况 → 数据分析（移除「飞行情况整体判定」「试飞通过 · 转入出货检验」两个时间线节点）
+    [修改] 数据分析未判定时停留在等待界面；判定合格（完成）后立刻自动流转至出货检验报告阶段（不再展示试飞通过页与「进入出货检验」按钮）；判定不合格仍展示未通过原因并可生成新试飞报告
+    [删除] 「go-ship」事件分支（试飞通过页按钮已随自动流转移除）
+    [修改] 试飞等待界面进行中节点标题「数据分析」更名为「待数据分析」（仅等待态；不合格态节点标题不变）
+  V21 (2026-04-30) 试飞填写页隐藏「数据分析」表单项：
+    [删除] 试飞填写页不再展示「数据分析」分组（导航分析结果/控制分析结果只读表单项及「算法人员反馈」标签）——测试人员无需知晓
+    [删除] ftContentHtml 只读（ro）渲染分支及 .ro-wait/.lock-tag 样式
+    [保留] 数据分析后台等待阶段不变：提交试飞情况 → 待数据分析时间线、约 5s 模拟算法人员反馈、随机种子判定、合格后自动流转出货检验
+  V22 (2026-04-30) 入库同步版（内容同 V21，无任何功能/样式变更）：
+    [说明] V21 整文件超出单次保存输出长度限制，改由 V21 复制顺延为 V22 完成最终内容的数据库入库同步；本版即「试飞填写页隐藏数据分析表单项」的正式最新版本
+  V23 (2026-04-30) 签名自动填充 + 照片归位检验记录栏 + 出货报告去照片：
+    [删除] 「复用签名」按钮（出货检验签名卡、横版签名板内）及对应 sign-reuse / sig-reuse 事件分支
+    [新增] 同一检验人填写出货检验报告时自动填充上次签名（S.lastSign），无需手动操作，签名卡标注「已自动填充上次签名」；支持「重签」，重签后自动覆盖上次签名样式（S.lastSign 同步更新）
+    [修改] 现场照片上传区从「检验结果」下方移至「检验记录」输入框下方（试飞/出货检验填写页一致），照片归属检验记录栏
+    [修改] 出货检验填写页底部主按钮「提交出货检验」更名为「提交」
+    [删除] 出货检验报告明细文书检验记录单元格不再展示检验过程上传的照片（.doc-thumbs 样式与 viewImgsHtml 函数一并移除）；照片仅在填写页检验记录栏可见
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ARK40 飞行履历与出厂流程 H5 原型</title>
+<style>
+/* ========== 设计令牌（Claude Design · Linear Light） ========== */
+:root{
+  --bg:#f4f6fa; --card:#ffffff; --line:#e5e7eb; --line2:#f1f5f9;
+  --t1:#0f172a; --t2:#334155; --t3:#64748b; --t4:#94a3b8;
+  --acc:#2563eb; --acc-bg:#eff4ff; --acc-line:#dbe6f6;
+  --ok:#16a34a; --ok-bg:#f0fdf4; --bad:#dc2626; --bad-bg:#fef2f2;
+  --warn:#b45309; --warn-bg:#fffbeb; --warn-line:#fde68a;
+  --r-lg:12px; --r-md:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font:13px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:var(--t1);background:#e8ecf3;text-wrap:pretty}
+#app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative}
+.screen{display:none;min-height:100vh;padding-bottom:84px}
+.screen.on{display:block;animation:scrIn .22s ease}
+@keyframes scrIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ========== 顶栏 ========== */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;height:46px;padding:0 12px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar .tt{font-size:15px;font-weight:600;flex:1}
+.topbar .sub{font-size:11px;color:var(--t3);letter-spacing:.05em}
+.backbtn{width:28px;height:28px;flex:none;border:none;background:transparent;border-radius:8px;color:var(--t2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.backbtn:active{background:var(--line2);transform:scale(.96)}
+/* ========== 按钮 ========== */
+.btn{height:40px;border-radius:10px;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid transparent;cursor:pointer;transition:transform .06s,background .15s,border-color .15s;font-family:inherit}
+.btn:active{transform:scale(.98)}
+.btn-p{background:var(--t1);color:#fff}
+.btn-p:active{background:#1e293b}
+.btn-s{background:#fff;border-color:var(--line);color:var(--t2)}
+.btn-s:active{background:var(--line2)}
+.btn-acc{background:var(--acc);color:#fff}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.btn-sm{height:32px;font-size:12px;border-radius:8px;padding:0 12px}
+/* ========== 调试悬浮球 ========== */
+#debug-fab{position:fixed;z-index:70;bottom:20px;right:max(12px,calc(50vw - 215px + 12px));display:flex;align-items:center;gap:5px;background:#0f172a;color:#fff;font-size:12px;font-weight:600;padding:8px 14px;border-radius:999px;cursor:pointer;border:none;box-shadow:0 4px 14px rgba(15,23,42,.28)}
+#debug-fab:active{transform:scale(.96)}
+/* ========== 扫码落地页 ========== */
+.scan-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:linear-gradient(180deg,#e7eefb 0%,var(--bg) 70%)}
+.scan-frame{width:190px;height:190px;position:relative;border-radius:18px;background:#fff;border:1px solid var(--acc-line);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.scan-frame .corner{position:absolute;width:22px;height:22px;border:3px solid var(--acc);border-radius:4px}
+.scan-frame .c1{top:8px;left:8px;border-right:none;border-bottom:none}
+.scan-frame .c2{top:8px;right:8px;border-left:none;border-bottom:none}
+.scan-frame .c3{bottom:8px;left:8px;border-right:none;border-top:none}
+.scan-frame .c4{bottom:8px;right:8px;border-left:none;border-top:none}
+.scan-laser{position:absolute;left:12px;right:12px;height:2px;background:var(--acc);opacity:.75;animation:laser 1.6s ease-in-out infinite}
+@keyframes laser{0%,100%{top:16%}50%{top:84%}}
+.scan-tip{font-size:13px;color:var(--t2);font-weight:600}
+.scan-sub{font-size:11px;color:var(--t3);letter-spacing:.04em}
+.scan-brand{position:absolute;top:18px;font-size:12px;color:var(--t3);letter-spacing:.12em}
+/* ========== 履历页 ========== */
+.hero{margin:12px 12px 0;border-radius:16px;background:linear-gradient(180deg,#dce7f8,#edf3fc);border:1px solid var(--acc-line);padding:14px 0 6px;display:flex;justify-content:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);margin:10px 12px 0;padding:12px 14px}
+.card-h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--t1)}
+.card-h .ic{width:18px;height:18px;flex:none;border-radius:6px;background:var(--acc-bg);color:var(--acc);display:flex;align-items:center;justify-content:center}
+.card-h .ic svg{width:11px;height:11px}
+.card-h .link{margin-left:auto;font-size:12px;font-weight:500;color:var(--acc);cursor:pointer;display:flex;align-items:center;gap:2px;border:none;background:none;font-family:inherit}
+.card-h .link:active{opacity:.6}
+.rows{margin-top:4px}
+.krow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;font-size:12.5px}
+.krow + .krow{border-top:1px solid var(--line2)}
+.krow .k{color:var(--t3);flex:none}
+.krow .v{color:var(--t1);font-weight:600;text-align:right}
+.krow .v.ok{color:var(--ok)}
+.footer{padding:20px 0 12px;text-align:center;font-size:11px;color:var(--t4)}
+.banner{margin:10px 12px 0;border:1px solid var(--warn-line);background:var(--warn-bg);color:var(--warn);border-radius:var(--r-lg);padding:10px 14px;font-size:12.5px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.banner .btn{flex:none;height:30px;padding:0 12px;font-size:12px;background:var(--warn);color:#fff;border-radius:8px}
+/* ========== 表单（试飞/出货检验同构） ========== */
+.meta-strip{display:flex;gap:8px;margin:10px 12px 0}
+.meta-chip{flex:1;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.meta-chip .k{font-size:10.5px;color:var(--t4);letter-spacing:.08em}
+.meta-chip .v{font-size:13px;font-weight:700;color:var(--t1)}
+.reason-banner{margin:10px 12px 0;border:1px solid #fecaca;background:var(--bad-bg);border-radius:var(--r-lg);padding:10px 14px;font-size:12px;color:var(--bad)}
+.reason-banner b{display:block;margin-bottom:2px}
+.grp{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);margin:10px 12px 0;overflow:hidden}
+.grp-h{display:flex;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;user-select:none}
+.grp-h .gi{width:6px;height:6px;border-radius:50%;background:var(--acc);flex:none}
+.grp-h .gt{font-size:13px;font-weight:700;flex:1}
+.grp-h .arr{color:var(--t4);font-size:12px;transition:transform .2s;flex:none}
+.grp.closed .arr{transform:rotate(-90deg)}
+.grp.closed .grp-b{display:none}
+.grp-b{padding:0 12px 12px}
+.req-row{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.req-row + .req-row{margin-top:8px}
+.sub-req{margin-top:9px;padding-top:9px;border-top:1px dashed var(--line2)}
+.item-h{margin:10px 2px 0;font-size:11.5px;font-weight:700;color:var(--t2);display:flex;align-items:center;gap:6px}
+.item-h::before{content:"";width:3px;height:10px;border-radius:2px;background:var(--acc);opacity:.5}
+.item-h + .req-row{margin-top:6px}
+.req-row .ct{font-size:13px;font-weight:600}
+.req-row .rq{font-size:11.5px;color:var(--t4);margin-top:2px}
+.f-label{font-size:10.5px;color:var(--t3);letter-spacing:.08em;margin:9px 0 4px;display:flex;align-items:center;gap:4px}
+.f-label .req-star{color:var(--bad)}
+input[type=text],textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--t1);background:#fff;font-family:inherit;outline:none;transition:border-color .15s}
+input[type=text]:focus,textarea:focus{border-color:var(--acc)}
+textarea{resize:vertical;min-height:56px}
+.judge{display:flex;gap:8px}
+.judge label{flex:1;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;font-size:12.5px;color:var(--t2);background:#fff;cursor:pointer;transition:all .15s}
+.judge input{display:none}
+.judge label.on-ok{border-color:var(--ok);color:var(--ok);background:var(--ok-bg);font-weight:700}
+.judge label.on-bad{border-color:var(--bad);color:var(--bad);background:var(--bad-bg);font-weight:700}
+/* ========== 检验项现场照片（移植 APP 原型 V11） ========== */
+.f-label .opt{color:var(--t4);letter-spacing:0;font-weight:400}
+.img-grid{display:flex;flex-wrap:wrap;gap:8px}
+.img-cell{position:relative;width:62px;height:62px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#f8fafc}
+.img-cell img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in}
+.img-del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;border:none;background:rgba(15,23,42,.62);color:#fff;font-size:10px;line-height:16px;text-align:center;padding:0;cursor:pointer}
+.img-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:62px;height:62px;border:1px dashed var(--acc-line);border-radius:8px;background:var(--acc-bg);color:var(--acc);font-size:10px;cursor:pointer;text-align:center}
+.img-add .pl{font-size:15px;line-height:1}
+.img-mask{position:fixed;inset:0;z-index:95;background:rgba(2,6,23,.9);display:flex;align-items:center;justify-content:center;padding:20px;animation:fade .18s}
+.img-mask img{max-width:100%;max-height:78vh;border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.img-mask .img-close{position:fixed;top:calc(12px + env(safe-area-inset-top));right:14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.img-mask .img-cap{position:absolute;left:0;right:0;bottom:26px;text-align:center;color:rgba(226,232,240,.85);font-size:11.5px}
+.flash-bad{outline:2px solid transparent;border-radius:8px;animation:flashBad .5s ease 4}
+@keyframes flashBad{0%,100%{outline-color:transparent}50%{outline-color:var(--bad)}}
+.ro-hint{margin:10px 12px 0;border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-size:11.5px;color:var(--t4);text-align:center}
+.sign-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.sign-row .who{font-size:12.5px;font-weight:600}
+.sign-row .who small{display:block;font-size:10.5px;color:var(--t4);font-weight:400}
+.sign-thumb{height:36px;max-width:130px;object-fit:contain}
+.sign-ops{display:flex;align-items:center;gap:8px;flex:none}
+.hand{font-family:"Kaiti SC","STKaiti","KaiTi","DFKai-SB",cursive;font-size:19px;color:#1e293b;transform:rotate(-2deg);display:inline-block;line-height:1.1}
+.old-list{margin:10px 12px 0}
+.old-item{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12px;color:var(--t2)}
+.old-item + .old-item{margin-top:6px}
+.old-item .st{margin-left:auto;font-weight:600;flex:none}
+.st-ok{color:var(--ok)} .st-bad{color:var(--bad)} .st-ing{color:var(--acc)}
+/* ========== 底部操作栏 ========== */
+.action-bar{position:fixed;z-index:30;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);display:flex;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+.action-bar .btn{flex:1}
+/* ========== 明细页 · 一张表一体检测报告（扫描件样式：信息栏+明细+结论+签署同表） ========== */
+.doc-view{margin:10px 10px 0;padding:10px 0 6px;background:#e8ecf3}
+.doc-fit{width:100%;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;cursor:zoom-in}
+.doc-fit .doc-page{width:640px;flex:none;transform-origin:top center}
+.doc-hint{text-align:center;font-size:10.5px;color:var(--t3);padding-top:7px}
+/* ========== 明细文书 · 图片预览式全屏放大 ========== */
+.zoom-mask{position:fixed;inset:0;z-index:90;background:rgba(15,23,42,.94);animation:fade .18s}
+.zoom-close{position:fixed;top:calc(12px + env(safe-area-inset-top));right:14px;z-index:92;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff;font-size:17px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.zoom-close:active{background:rgba(255,255,255,.28)}
+.zoom-body{position:absolute;inset:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:calc(54px + env(safe-area-inset-top)) 10px 26px}
+.zoom-fit{display:flex;justify-content:center;overflow:hidden;width:100%}
+.zoom-fit .doc-page{width:640px;flex:none;transform-origin:top center;cursor:default}
+.doc-page{position:relative;overflow:hidden;background:#fff;border:1px solid #d5dbe6;padding:18px 16px 14px;color:#374151;font-family:"Songti SC","STSong","SimSun",Georgia,"Times New Roman",serif}
+/* 页眉：居中大字标题 + 表单受控号行（检测报告样张式 · 移植 APP 原型） */
+.doc-ttl{text-align:center;font-size:26px;font-weight:800;letter-spacing:10px;text-indent:10px;color:#111827;padding:2px 0 8px}
+.doc-norow{display:flex;justify-content:space-between;align-items:baseline;font-size:10.5px;color:#374151;padding:0 2px 8px}
+/* 报告信息栏：四列 label/value 带框表，与明细表边框相连 */
+.doc-info{width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed}
+.doc-info td{border:1px solid #444;padding:5px 8px;color:#374151;text-align:center;line-height:1.5;word-break:break-all}
+.doc-info td.lbl{font-weight:700;color:#111827;white-space:nowrap}
+/* 检验明细表：深色细边框、表头加粗白底、单元格居中（扫描件观感） */
+.doc-main{width:100%;min-width:600px;border-collapse:collapse;font-size:11px;margin-top:-1px;table-layout:fixed}
+.doc-main td,.doc-main th{border:1px solid #444;padding:5px 6px;color:#374151;line-height:1.5;word-break:break-all;text-align:center;vertical-align:middle}
+.doc-main th{background:#fff;font-weight:700;color:#111827;white-space:nowrap}
+.doc-main td.lbl{font-weight:700;color:#111827;white-space:nowrap}
+.doc-main td.cat{font-weight:600;color:#111827}
+.doc-main td.anom{text-align:left;padding:6px 10px}
+.doc-main td.ok{color:var(--ok);font-weight:700}
+.doc-main td.bad{color:var(--bad);font-weight:700}
+/* 检验结论：表下加粗段落（样张「检测结论」式） */
+.doc-concl{margin-top:10px;font-size:12.5px;font-weight:700;color:#111827;line-height:1.8}
+.doc-concl .ck{font-weight:700}
+.doc-concl .ck.off{color:var(--t4);font-weight:400}
+/* 签署横排：检验/审核/批准 + 签发日期（日期章压盖），表下样张式 */
+.doc-signrow2{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:20px;padding:0 4px 6px;font-size:12px;color:#111827}
+.doc-signrow2 .sg{display:flex;align-items:center;gap:4px;white-space:nowrap}
+.doc-signrow2 .hand{font-size:20px;color:#1e293b}
+.doc-signrow2 img{height:30px;max-width:72px;object-fit:contain}
+.doc-signrow2 .issue{position:relative;padding-right:62px}
+.doc-signrow2 .issue .date-seal{position:absolute;right:-12px;top:-38px}
+.date-seal{width:74px;height:74px;flex:none;transform:rotate(-8deg);mix-blend-mode:multiply;opacity:.92;pointer-events:none}
+/* 页脚：公司/地址/电话 三段横排（样张底部式） */
+.doc-foot2{display:flex;justify-content:space-between;gap:12px;margin-top:30px;font-size:10.5px;color:#374151;line-height:1.6}
+.doc-foot2 b{font-weight:700;color:#111827}
+.xscroll{overflow-x:auto}
+.xtable{border-collapse:collapse;font-size:11.5px;min-width:640px;width:100%}
+.xtable th{background:#eef2f9;color:var(--t2);font-weight:600;padding:8px 8px;border:1px solid var(--line);white-space:nowrap}
+.xtable td{padding:7px 8px;border:1px solid var(--line);color:var(--t1)}
+.xtable td.cat{background:#f8fafc;font-weight:600}
+.sign-strip{position:relative;padding:12px 14px 16px;border-top:1px solid var(--line)}
+.sign-line{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ok);padding:3px 0;flex-wrap:wrap}
+.sign-line .ck{width:14px;height:14px;flex:none;border-radius:50%;background:var(--ok);color:#fff;font-size:9px;display:flex;align-items:center;justify-content:center}
+.sign-line .tm{color:var(--t3)}
+.seal{position:absolute;right:14px;top:2px;width:110px;height:110px;opacity:.92;pointer-events:none;transform:rotate(-8deg)}
+/* ========== 后台流转时间线 ========== */
+.timeline{margin:12px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg)}
+.tl-item{display:flex;gap:10px;position:relative;padding-bottom:22px}
+.tl-item:last-child{padding-bottom:2px}
+.tl-item::before{content:"";position:absolute;left:11px;top:24px;bottom:2px;width:1px;background:var(--line)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:23px;height:23px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:1px solid var(--line);background:#fff;color:var(--t4)}
+.tl-item.done .tl-dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.tl-item.act .tl-dot{border-color:var(--acc);color:var(--acc)}
+.tl-item.act .tl-dot .sp{width:10px;height:10px;border:2px solid var(--acc);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+.tl-item.bad .tl-dot{background:var(--bad);border-color:var(--bad);color:#fff}
+.tl-t{font-size:13px;font-weight:600}
+.tl-s{font-size:11px;color:var(--t3);margin-top:1px}
+.tl-item.bad .tl-t{color:var(--bad)}
+/* ========== 弹窗 ========== */
+.mask{position:fixed;inset:0;z-index:80;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .18s}
+.sheet{width:100%;max-width:430px;background:#fff;border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));animation:up .22s ease}
+.sheet-h{font-size:15px;font-weight:700;margin-bottom:4px}
+.sheet-s{font-size:12px;color:var(--t3);margin-bottom:12px}
+.sheet .btn-row{display:flex;gap:10px;margin-top:14px}
+.sheet .btn-row .btn{flex:1}
+.verdict-pick{display:flex;gap:10px}
+.verdict-pick label{flex:1;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:center;cursor:pointer;font-size:14px;font-weight:700;color:var(--t3)}
+.verdict-pick input{display:none}
+.verdict-pick label small{display:block;font-size:10.5px;font-weight:400;color:var(--t4);margin-top:2px}
+.verdict-pick label.on-ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.verdict-pick label.on-bad{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.v-counts{display:flex;gap:8px;margin:0 0 10px}
+.vc{font-size:11px;border-radius:6px;padding:3px 10px;background:var(--line2);color:var(--t3);font-weight:600}
+.vc.ok{background:var(--ok-bg);color:var(--ok)}
+.vc.bad{background:var(--bad-bg);color:var(--bad)}
+.sig-canvas{width:100%;border:1px dashed var(--line);border-radius:10px;background:#fbfdff;touch-action:none}
+.sig-tools{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px}
+/* 横版签名板：全屏遮罩内内容旋转 90°，横向大画布保证充裕署名空间 */
+.sig-land-mask{position:fixed;inset:0;z-index:85;background:rgba(15,23,42,.6);animation:fade .18s}
+.sig-land{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(90deg);width:min(94vh,760px);height:min(88vw,330px);background:#fff;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.sig-land .sl-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.sig-land .sl-h b{font-size:15px}
+.sig-land .sl-h span{font-size:12px;color:var(--t3)}
+.sig-land .sig-canvas{flex:1;height:auto;min-height:0}
+.sig-land .sig-tools{margin-top:0}
+/* ========== 调试面板 ========== */
+.dbg-panel{position:fixed;z-index:90;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#0f172a;color:#e2e8f0;border-radius:16px 16px 0 0;padding:14px 16px calc(14px + env(safe-area-inset-bottom));animation:up .22s ease;max-height:72vh;overflow-y:auto}
+.dbg-panel h4{font-size:11px;letter-spacing:.14em;color:#64748b;margin:12px 0 6px;text-transform:uppercase}
+.dbg-panel h4:first-child{margin-top:0}
+.dbg-seg{display:flex;gap:6px}
+.dbg-seg button{flex:1;height:32px;border-radius:8px;border:1px solid #334155;background:#1e293b;color:#94a3b8;font-size:12px;cursor:pointer;font-family:inherit}
+.dbg-seg button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.dbg-row{display:flex;gap:8px;margin-top:8px}
+.dbg-row .btn{flex:1;height:34px;font-size:12px;border-radius:8px}
+.dbg-note{font-size:10.5px;color:#64748b;margin-top:6px;line-height:1.5}
+.dbg-close{position:absolute;top:10px;right:12px;border:none;background:none;color:#64748b;font-size:16px;cursor:pointer}
+/* ========== Toast ========== */
+.toast{position:fixed;z-index:100;top:60px;left:50%;transform:translateX(-50%);background:rgba(15,23,42,.92);color:#fff;font-size:12px;padding:8px 16px;border-radius:999px;animation:fade .2s;max-width:86%;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- 页面：扫码落地 -->
+  <section id="scr-scan" class="screen"><!-- TODO: 扫码落地页 --></section>
+  <!-- 页面：飞机履历 -->
+  <section id="scr-history" class="screen"><!-- TODO: 履历页（JS 渲染） --></section>
+  <!-- 页面：出货检验报告明细 -->
+  <section id="scr-detail" class="screen"><!-- TODO: 明细页（JS 渲染） --></section>
+  <!-- 页面：试飞填写 -->
+  <section id="scr-flight" class="screen"><!-- TODO: 试飞填写（JS 渲染） --></section>
+  <!-- 页面：出货检验填写/后台流转 -->
+  <section id="scr-ship" class="screen"><!-- TODO: 出货检验（JS 渲染） --></section>
+</div>
+<!-- 弹窗挂载点 -->
+<div id="modal-root"></div>
+<!-- 调试面板 -->
+<div id="debug-panel" class="dbg-panel" hidden><!-- TODO: 调试面板 --></div>
+<button id="debug-fab" type="button"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="6" r="2.2"/><path d="M6 1v2M6 9v2M1 6h2M9 6h2M2.5 2.5l1.4 1.4M8.1 8.1l1.4 1.4M9.5 2.5 8.1 3.9M3.9 8.1 2.5 9.5"/></svg> 调试</button>
+<!-- Toast -->
+<div id="toast" class="toast" hidden></div>
+<script>
+'use strict';
+/* ================= 数据字典：ARK40 单机型 ================= */
+/* 登录态绑定的员工信息（mock）：签名自动携带，无需手动输入 */
+const USER = { name:'张三', code:'01458029' };
+const PLANE_NO = 'OB-ARK40-2404-1';   // 飞机编号（顶栏展示）
+const SPECS = {
+  sn:'ARK40-2404', model:'ARK40', category:'多旋翼', level:'中型（25kg≤起飞重量<150kg）',
+  org:'丰翼科技（深圳）有限公司', regNo:'UAS402404', productCode:'FY01ARK40402404AYMU0',
+  empty:'25kg', mtow:'48kg', dims:'2.5×2.5×0.5m', payload:'10kg / 20km', cargo:'60L',
+  maker:'江西丰羽顺途科技有限公司', mfgDate:'2026-07-02',
+  addr:'江西省南昌市临空经济区兴业大道 666 号丰羽智能制造产业园'
+};
+/* 试飞报告模板：检验项目 → 检验内容 → 检验要求（三标签，按真实表单） */
+const FT_TEMPLATE = (()=>{ let n=0; return [
+  { item:'试飞情况', contents:[
+    { content:'飞前检查', reqs:[
+      '电机安装正确，指标一上一下；1号电机向前，从机框往机头数：1、2号电机呈“外八”、内圈',
+      '正反桨安装正确，桨叶无缺损、裂纹、鼓包现象',
+      '视觉镜头头无异物遮挡',
+      '机身脚架碳管无变形、裂纹、损伤，各部位螺丝已拧紧',
+      '管夹检查，管夹无变形、裂纹、损伤，铆钉/螺丝安装到位，无漏锁、无滑拧' ]},
+    { content:'初次上电测试', reqs:[
+      '飞机上电后地面站无人机显示列表可见对应编号飞机',
+      '飞机灯色显示正常，机头朝向、机尾方向灯色符合定义（红前绿后）',
+      '电池电压、压差在规格范围内，无告警',
+      '上电后系统自检完成，地面站软件故障信息列表无任何告警信息',
+      '飞机上电静止放置时，飞控姿态数据与实际水平显示一致，无明显偏差',
+      '单电池解锁关机，其他3个电池同步解锁，SFE无告警提示音；新款电池检查四个电池和电磁铁连接接口无松动',
+      '单电池解锁关机，其他3个电池同步关机' ]},
+    { content:'搜星情况', reqs:['地面静止状态冲动2min，搜星数≥12颗，导航进入POS模式，最终进入RTK模式']},
+    { content:'手动模式测试', reqs:['遥控器打开俯仰、横滚、偏航、油门各通道打开响应正常，方向对应正确，无迟滞、反方向']},
+    { content:'悬停情况', reqs:['飞机悬停时，无明显漂离、异常抖动（会误报桨叶动不平衡/桨叶破损）、异常点头现象']},
+    { content:'飞行状态', reqs:['飞机调整飞行时，飞行高度偏差误差≤±1.5m']},
+    { content:'视觉降落', reqs:['自动降落过程中无视觉修正过程、无明显悬晃现象，飞机中心点没有超出同心圆最外圈范围']} ]},
+  { item:'数据分析', contents:[
+    { content:'导航分析结果', reqs:['算法组导航分析结果合格']},
+    { content:'控制分析结果', reqs:['算法组控制分析结果合格']} ]}
+].map(g=>({ item:g.item, contents:g.contents.map(c=>({ content:c.content, reqs:c.reqs.map(req=>({ id:'f'+(++n), req })) })) })); })();
+/* 出货检验报告模板：类别 → 检验项目 → 检验内容 → 判定标准要求（四标签，按真实表单） */
+const SH_TEMPLATE = (()=>{ let n=0; const R=(content,req)=>({ id:'s'+(++n), content, req }); return [
+  { cat:'整机结构', items:[
+    { item:'机臂', rows:[ R('碳管','表面无裂纹、破损、划痕'), R('碳管连接件','AB胶涂抹均匀，胶水黑化，无流挂'), R('管夹','AB胶涂抹均匀，胶水黑化，无流挂，管夹位置安装正确'), R('斜拉杆','斜拉杆、斜拉杆盖与碳管配合无间隙，螺丝安装到位，无漏锁、无滑拧') ]},
+    { item:'机身', rows:[ R('底板、顶板、边条','表面无裂纹、破损及污渍，无漏锁，铆钉及螺母无倾斜无松动'), R('铭牌、民航注册码','飞机编号、无人机铭牌、民航注册码标识清晰、数据准确、无漏贴'), R('机身螺丝','整机螺丝、铆钉安装到位，无漏锁、无滑拧'), R('电池舱','螺丝、铆钉安装到位，无漏锁、无滑拧，电池舱开合顺畅'), R('航电盖板','表面无裂纹、破损及污渍，螺丝及垫片安装到位，无漏锁、无滑拧，RTK天线无松动，垫片贴合牢固') ]},
+    { item:'脚架', rows:[ R('脚架碳管','飞机无高低脚、脚架安装牢固，无松动'), R('脚架内部天线','脚架内部天线组件安装牢固，无松动') ]},
+    { item:'货舱', rows:[ R('拨扣支架','货舱开合顺畅无干涉，拨扣支架螺丝安装到位，无漏锁、无滑拧') ]},
+    { item:'降落伞', rows:[ R('舱盖','舱盖安装牢固，警示标识已粘贴'), R('伞绳','伞绳露出舱盖长度一致，伞绳固定牢固、无破损') ]},
+    { item:'整机', rows:[ R('重量','整机重量：记录实测值') ]} ]},
+  { cat:'整机动力', items:[
+    { item:'电机', rows:[ R('电机座','螺丝安装到位，无漏锁、无滑拧，螺丝力矩值为 3.0±0.3N·m'), R('电机','表面无划痕、破损，倒角正确（外倾），电机编号与机臂编号一致'), R('电机','电机转动顺滑无异响，无卡滞') ]},
+    { item:'桨叶', rows:[ R('桨叶','表面无径向无裂痕：中间、裂纹、叶尖、前缘后缘无裂无缺、破损，正反桨叶放置正确'), R('桨叶螺丝','上下夹盘、桨叶、电机配合无间隙，螺丝安装到位，无漏锁、无滑拧') ]} ]},
+  { cat:'航电功能性', items:[
+    { item:'链路', rows:[ R('遥控/图传链路','遥控/图传链路稳定') ]},
+    { item:'RTK', rows:[ R('RTK定位','RTK定位精度≤2cm') ]} ]},
+  { cat:'可靠性测试', items:[
+    { item:'航线飞行', rows:[ R('自动航线执行','自动航线执行正常') ]},
+    { item:'失效保护', rows:[ R('失联返航','失联返航功能正常') ]} ]}
+]; })();
+const ftRows = () => FT_TEMPLATE.flatMap(g=>g.contents.flatMap(c=>c.reqs));
+const ftFlyRows = () => FT_TEMPLATE[0].contents.flatMap(c=>c.reqs);   /* 试飞情况：测试人员填写 */
+const ftAnaRows = () => FT_TEMPLATE[1].contents.flatMap(c=>c.reqs);    /* 数据分析：算法人员反馈 */
+const shRows = () => SH_TEMPLATE.flatMap(g=>g.items.flatMap(i=>i.rows));
+const REJECT_REASONS = [
+  '漆面右后臂下方轻微划痕，需补漆后复检',
+  '续航测试记录不完整，请补充满载续航数据后重新提交',
+  '标识贴纸未贴齐，缺少 SN 序列号贴纸',
+  'RTK 复测定位精度超差，需重新校准后复检',
+  '链路图传偶发丢包，需复查天线接头后重新提交'
+];
+/* 数据分析（算法人员）不合格原因池 */
+const FT_REJECT_REASONS = [
+  '导航分析结果不合格：悬停段姿态角波动超限，需排查后重测',
+  '控制分析结果不合格：高度保持偏差超差，需重新整定控制参数',
+  '数据分析不合格：飞行日志关键片段缺失，需补采数据后重测',
+  '导航分析结果不合格：RTK 定位漂移超限，需重新校准后重测'
+];
+/* ================= 工具函数 ================= */
+const $ = s => document.querySelector(s);
+const p2 = n => String(n).padStart(2,'0');
+const fmtD  = d => d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());
+const fmtDT = d => fmtD(d)+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+let toastTimer = null;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.hidden=true, 2200); }
+/* ================= 状态管理 ================= */
+const LS_KEY = 'ark40_h5_proto_v2';   /* V18：存储键升级，加载含示例照片的演示数据 */
+const IMG_MAX = 4;                    /* 单个检验项最多上传照片数 */
+const imgsOf = rec => (rec && rec.imgs) || [];
+function demoImg(txt, c1, c2){        /* 演示用示意照片（内联 SVG，不占带宽） */
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">'
+    + '<stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs>'
+    + '<rect width="240" height="180" fill="url(#g)"/><circle cx="198" cy="36" r="17" fill="rgba(255,255,255,.22)"/>'
+    + '<text x="14" y="164" font-family="sans-serif" font-size="15" fill="rgba(255,255,255,.95)">'+txt+'</text></svg>';
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
+function seedFtPassed(){ const rows={}; ftRows().forEach((row,i)=>{ rows[row.id]={ rec: row.req.indexOf('算法组')===0?'分析结果合格':'正常', res:'pass' };
+    if(i===1) rows[row.id].imgs=[ demoImg('试飞现场-01','#475569','#94a3b8') ];
+    if(i===3) rows[row.id].imgs=[ demoImg('试飞现场-02','#0f766e','#14b8a6'), demoImg('试飞现场-03','#334155','#64748b') ];
+  });
+  return { id:'ft-seed', round:1, date:'2026-08-20', locked:true, passed:true, verdict:'pass', status:'passed',
+  rows, log:'试飞日志_20260820.mp4', anomaly:'', sign:{ name:'刘涛', img:null } }; }
+function seedShPassed(){ const rows={}; shRows().forEach(row=>{
+    let rec='正常';
+    if(row.content==='重量') rec='47.6kg';
+    if(row.content==='RTK定位') rec='1.2cm';
+    if(row.content==='电机座') rec='力矩 3.0N·m';
+    rows[row.id]={ rec, res:'pass' };
+    if(row.content==='重量') rows[row.id].imgs=[ demoImg('称重现场-01','#334155','#64748b') ];
+    if(row.content==='RTK定位') rows[row.id].imgs=[ demoImg('RTK复测-01','#1e40af','#3b82f6'), demoImg('RTK复测-02','#0f766e','#10b981') ];
+    if(row.content==='电机座') rows[row.id].imgs=[ demoImg('力矩校验-01','#7c2d12','#f59e0b') ]; });
+  return { id:'ob-seed', round:1, no:'OB-ARK40-2404-1', status:'passed', locked:true, date:'2026-08-23',
+  rows,
+  anomaly:'RTK定位1.2cm，整机重量47.6kg，无其他异常。',
+  sign:{ name:'张三', img:null },
+  dates:{ inspect:'2026-08-23 09:00', review:'2026-08-23 14:00', approve:'2026-08-23 16:00' },
+  persons:{ inspector:'张三', reviewer:'赵四', approver:'王五' },
+  reportDate:'2026-08-29', prevReason:'' }; }
+function defaultState(){ return {
+  login:false,                      // 扫码登录态
+  stage:'done',                     // done | ft | sh（出厂流程阶段）
+  ftReports:[seedFtPassed()],       // 试飞报告履历（含锁定旧报告）
+  shReports:[seedShPassed()],       // 出货检验报告履历
+  seeds:{ review:'random', approve:'random', analyze:'random' },  // 数据分析/后台审核/批准随机种子
+  draft:null                        // 试飞表单本地暂存
+}; }
+let S = null;
+try { S = JSON.parse(localStorage.getItem(LS_KEY)) || defaultState(); } catch(e){ S = defaultState(); }
+/* 最近一次签名（用于「签名复用」）：老数据无此字段时从已签名报告回填 */
+if(S.lastSign===undefined){ const ls=[...S.shReports].reverse().find(x=>x.sign); S.lastSign = ls ? ls.sign : null; }
+/* V19 数据迁移：老数据补齐数据分析种子字段 */
+if(!S.seeds) S.seeds = { review:'random', approve:'random' };
+if(!S.seeds.analyze) S.seeds.analyze = 'random';
+/* V20 数据迁移：老数据停在「试飞通过」等待页的，直接推进到出货检验阶段（等待界面已改为判定完成即自动流转） */
+if(S.stage==='ft'){ const lf=S.ftReports[S.ftReports.length-1];
+  if(lf && lf.status==='passed'){ S.stage='sh';
+    const ls=S.shReports[S.shReports.length-1];
+    if(!ls || ls.status!=='draft') S.shReports.push(newShReport(S.shReports.length+1,'')); } }
+let quotaWarned = false;
+function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(S)); } catch(e){
+  if(!quotaWarned){ quotaWarned = true; toast('本地存储空间不足（照片较多），本次改动仅保留在当前会话'); } } }
+function resetState(mode){
+  if(mode==='done'){ S.stage='done'; S.ftReports=[seedFtPassed()]; S.shReports=[seedShPassed()]; }
+  if(mode==='ft'){ S.stage='ft'; S.ftReports=[newFtReport(1)]; S.shReports=[]; }
+  if(mode==='sh'){ S.stage='sh'; S.ftReports=[seedFtPassed()]; S.shReports=[newShReport(1,'')]; }
+  if(mode!=='done'){ S.login=true; }   // 进入流程需员工身份
+  const ls=[...S.shReports].reverse().find(x=>x.sign); S.lastSign = ls ? ls.sign : null;
+  S.draft=null; save();
+}
+/* 报告工厂 */
+function newFtReport(round){ return { id:'ft'+Date.now(), round, date:fmtD(new Date()), locked:false, passed:null, verdict:null,
+  status:'draft', dates:null, filler:null, analyst:null, rejectStage:null, rejectReason:null,
+  rows:{}, log:null, anomaly:'', sign:null }; }
+function newShReport(round, prevReason){ return { id:'ob'+Date.now(), round, no:'OB-'+SPECS.sn+'-'+round, status:'draft', locked:false,
+  date:fmtD(new Date()), rows:{}, anomaly:'', sign:null, dates:null, persons:null, reportDate:null, prevReason:prevReason||'' }; }
+const curFt = () => S.ftReports[S.ftReports.length-1];
+const curSh = () => S.shReports[S.shReports.length-1];
+const passedSh = () => { const r=[...S.shReports].reverse().find(x=>x.status==='passed'); return r||null; };
+/* 屏幕路由 */
+let VIEW = 'customer';   // customer | staff
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on')); $('#scr-'+id).classList.add('on'); window.scrollTo(0,0); }
+/* ================= SVG 素材 ================= */
+function droneSvg(){ return `<svg width="230" height="112" viewBox="0 0 230 112" aria-label="ARK40 多旋翼无人机">
+  <ellipse cx="115" cy="103" rx="52" ry="6" fill="#d3e0f3"/>
+  <g fill="#c9d9f0"><ellipse cx="42" cy="24" rx="26" ry="8"/><ellipse cx="188" cy="24" rx="26" ry="8"/><ellipse cx="42" cy="80" rx="26" ry="8"/><ellipse cx="188" cy="80" rx="26" ry="8"/></g>
+  <g stroke="#d64545" stroke-width="5" stroke-linecap="round"><path d="M92 48 L52 28"/><path d="M138 48 L178 28"/><path d="M92 62 L52 78"/><path d="M138 62 L178 78"/></g>
+  <g stroke="#94a3b8" stroke-width="3" stroke-linecap="round"><path d="M100 70 L96 88"/><path d="M130 70 L134 88"/><path d="M88 90 L104 90"/><path d="M126 90 L142 90"/></g>
+  <rect x="78" y="40" width="74" height="30" rx="15" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+  <rect x="94" y="50" width="20" height="10" rx="5" fill="#d64545"/>
+  <circle cx="128" cy="55" r="5.5" fill="#2563eb"/>
+</svg>`; }
+function sealSvg(){ return `<svg class="seal" viewBox="0 0 120 120" aria-label="电子公章">
+  <circle cx="60" cy="60" r="55" fill="none" stroke="#dc2626" stroke-width="3"/>
+  <defs><path id="sealArc" d="M 60 60 m -43 0 a 43 43 0 1 1 86 0" fill="none"/></defs>
+  <text fill="#dc2626" font-size="11" letter-spacing="1.5"><textPath href="#sealArc" startOffset="50%" text-anchor="middle">江西丰羽顺途科技有限公司</textPath></text>
+  <path d="M60,49 L62.9,56.9 L71.4,57.3 L64.8,62.5 L67.1,70.7 L60,66 L52.9,70.7 L55.2,62.5 L48.6,57.3 L57.1,56.9 Z" fill="#dc2626"/>
+  <text x="60" y="90" text-anchor="middle" fill="#dc2626" font-size="9.5" letter-spacing="2.5">检验专用章</text>
+</svg>`; }
+/* 日期章：圆形红章（公司名弧形 + 英文名 + 五角星 + 日期），章面自带日期，独立加盖于签署区右侧 */
+function dateSealSvg(dt){
+  const ds = (dt||'').slice(0,10).replace(/-/g,'.');
+  return `<svg class="date-seal" viewBox="0 0 120 120" aria-label="日期章">
+  <circle cx="60" cy="60" r="55" fill="none" stroke="#dc2626" stroke-width="3.5"/>
+  <defs><path id="dsArc" d="M 60 60 m -42 0 a 42 42 0 1 1 84 0" fill="none"/></defs>
+  <text fill="#dc2626" font-size="13" letter-spacing="2"><textPath href="#dsArc" startOffset="50%" text-anchor="middle">顺丰航空有限公司</textPath></text>
+  <path d="M60,40 L63.2,48.6 L72.4,49 L65.2,54.7 L67.7,63.6 L60,58.5 L52.3,63.6 L54.8,54.7 L47.6,49 L56.8,48.6 Z" fill="#dc2626"/>
+  <text x="60" y="80" text-anchor="middle" fill="#dc2626" font-size="8" letter-spacing=".5">SF AIRLINES CO., LTD.</text>
+  <text x="60" y="99" text-anchor="middle" fill="#dc2626" font-size="13" font-weight="700" letter-spacing="1">${ds}</text>
+</svg>`; }
+const IC = {
+  dev:'<path d="M6 1.5v9M1.5 6h9"/>', gear:'<circle cx="6" cy="6" r="2.2"/><path d="M6 1v2M6 9v2M1 6h2M9 6h2M2.5 2.5l1.4 1.4M8.1 8.1l1.4 1.4M9.5 2.5 8.1 3.9M3.9 8.1 2.5 9.5"/>',
+  fac:'<path d="M1.5 10.5v-6l3.5 2v-2l3.5 2v-2h2v6z"/>', doc:'<rect x="2.5" y="1.5" width="7" height="9" rx="1"/><path d="M4.5 4.5h3M4.5 6.5h3"/>'
+};
+const icon = n => `<span class="ic"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">${IC[n]}</svg></span>`;
+const handSign = name => `<span class="hand">${esc(name)}</span>`;
+const signHtml = sign => (sign && sign.img) ? `<img class="sign-thumb" src="${sign.img}" alt="签名">` : (sign ? handSign(sign.name) : '');
+/* ================= 扫码落地页 ================= */
+function renderScan(){ show('scan'); $('#scr-scan').innerHTML = `
+  <div class="scan-wrap">
+    <div class="scan-brand">丰翼科技 · 无人机履历</div>
+    <div class="scan-frame">
+      <i class="corner c1"></i><i class="corner c2"></i><i class="corner c3"></i><i class="corner c4"></i>
+      <svg width="96" height="96" viewBox="0 0 96 96" fill="#0f172a"><g>
+        <rect x="8" y="8" width="24" height="24" rx="3"/><rect x="14" y="14" width="12" height="12" rx="2" fill="#fff"/>
+        <rect x="64" y="8" width="24" height="24" rx="3"/><rect x="70" y="14" width="12" height="12" rx="2" fill="#fff"/>
+        <rect x="8" y="64" width="24" height="24" rx="3"/><rect x="14" y="70" width="12" height="12" rx="2" fill="#fff"/>
+        <rect x="42" y="10" width="8" height="8"/><rect x="42" y="26" width="8" height="8"/><rect x="52" y="42" width="8" height="8"/>
+        <rect x="42" y="42" width="8" height="8"/><rect x="10" y="42" width="8" height="8"/><rect x="26" y="52" width="8" height="8"/>
+        <rect x="64" y="42" width="8" height="8"/><rect x="78" y="52" width="8" height="8"/><rect x="64" y="64" width="10" height="10"/>
+        <rect x="80" y="70" width="8" height="8"/><rect x="64" y="80" width="8" height="8"/><rect x="42" y="64" width="8" height="8"/><rect x="50" y="78" width="8" height="8"/>
+      </g></svg>
+      <div class="scan-laser"></div>
+    </div>
+    <div class="scan-tip">正在扫描机体二维码…</div>
+    <div class="scan-sub">产品识别码 ${SPECS.productCode}</div>
+  </div>`; }
+/* ================= 飞机履历页 ================= */
+function krows(pairs){ return `<div class="rows">` + pairs.map(([k,v,cls]) =>
+  `<div class="krow"><span class="k">${k}</span><span class="v ${cls||''}">${v}</span></div>`).join('') + `</div>`; }
+function renderHistory(){
+  VIEW = S.login ? 'staff' : 'customer';
+  const ps = passedSh();
+  let h = `<div class="topbar"><span class="tt">飞机履历</span><span class="sub">${SPECS.sn}</span></div>`;
+  h += `<div class="hero">${droneSvg()}</div>`;
+  if(VIEW==='staff' && S.stage!=='done'){
+    h += `<div class="banner"><span>出厂流程进行中 · ${S.stage==='ft'?((curFt()&&curFt().status==='analyzing')?'试飞阶段 · 数据分析中':'试飞阶段'):'出货检验阶段'}</span><button class="btn" data-act="resume">继续流程</button></div>`;
+  }
+  h += `<div class="card"><div class="card-h">${icon('dev')}设备概况</div>${krows([
+      ['SN/序列号',SPECS.sn],['产品型号',SPECS.model],['机型类别',SPECS.category],['机型等级',SPECS.level],
+      ['所属组织',SPECS.org],['实名登记号',SPECS.regNo],['产品识别码',SPECS.productCode]])}</div>`;
+  h += `<div class="card"><div class="card-h">${icon('gear')}技术参数</div>${krows([
+      ['空机重量',SPECS.empty],['最大起飞重量',SPECS.mtow],['整机尺寸（长×宽×高）',SPECS.dims],
+      ['载重/航程',SPECS.payload],['货仓容积',SPECS.cargo]])}</div>`;
+  h += `<div class="card"><div class="card-h">${icon('fac')}生产信息</div>${krows([
+      ['制造商',SPECS.maker],['制造日期',SPECS.mfgDate],['厂商地址',SPECS.addr]])}</div>`;
+  /* 整机检验报告：仅展示最后一次通过的出货检验报告，不携带历史未通过信息 */
+  if(ps){
+    h += `<div class="card"><div class="card-h">${icon('doc')}整机检验报告
+        <button class="link" data-act="detail">查看详情 ›</button></div>${krows([
+        ['报告名称','出货检验报告'],['飞机编号',PLANE_NO],
+        ['检验结论','检验合格 · 准予出厂','ok'],['报告日期',ps.reportDate||ps.dates.approve.slice(0,10)]])}</div>`;
+  }
+  h += `<div class="footer">Copyright © 2026 丰翼科技 版权所有</div>`;
+  show('history'); $('#scr-history').innerHTML = h;
+}
+/* ================= 出货检验报告明细 · 一张表一体检测报告（信息栏+明细+异常+结论+签署公章 同表连续边框） ================= */
+function renderDetail(r){
+  if(!r){ toast('暂无已通过的出货检验报告'); return; }
+  const d = r.dates||{}, p = r.persons||{};
+  let rowsHtml = '', idx = 0;
+  SH_TEMPLATE.forEach(g=>{
+    const catSpan = g.items.reduce((a,it)=>a+it.rows.length,0);
+    let firstCat = true;
+    g.items.forEach(it=>{
+      it.rows.forEach((row,i)=>{
+        idx++;
+        const rec = r.rows[row.id]||{};
+        rowsHtml += `<tr><td class="num">${idx}</td>${firstCat?`<td class="cat" rowspan="${catSpan}">${g.cat}</td>`:''}
+          ${i===0?`<td class="cat" rowspan="${it.rows.length}">${it.item}</td>`:''}
+          <td>${row.content}</td><td>${row.req}</td>
+          <td>${esc(rec.rec||'—')}</td>
+          <td class="${rec.res==='bad'?'bad':'ok'}">${rec.res==='bad'?'不合格':'合格'}</td></tr>`;
+        firstCat = false;
+      });
+    });
+  });
+  let h = `<div class="topbar"><button class="backbtn" data-act="back">‹</button><span class="tt">出货检验报告明细</span><span class="sub">飞机编号：${PLANE_NO}</span></div>`;
+  h += `<div class="doc-view"><div class="doc-fit" id="doc-fit"><div class="doc-page" data-act="doc-zoom">
+    <div class="doc-ttl">出货检验报告</div>
+    <div class="doc-norow"><span>表单受控号：${r.no||'—'}</span></div>
+    <div class="xscroll"><table class="doc-info"><colgroup>
+      <col style="width:16%"><col style="width:34%"><col style="width:16%"><col style="width:34%">
+    </colgroup><tbody>
+      <tr><td class="lbl">产品型号</td><td>${SPECS.model}</td><td class="lbl">飞机编号</td><td>${PLANE_NO}</td></tr>
+      <tr><td class="lbl">SN码</td><td>${SPECS.sn}</td><td class="lbl">检验日期</td><td>${d.inspect||''}</td></tr>
+    </tbody></table><table class="doc-main"><colgroup>
+      <col style="width:30px"><col style="width:62px"><col style="width:72px"><col style="width:auto"><col style="width:auto"><col style="width:70px"><col style="width:56px">
+    </colgroup><tbody>
+      <tr><th>序号</th><th>类别</th><th>检验项目</th><th>检验内容</th><th>判定标准要求</th><th>检验记录</th><th>检验结果</th></tr>
+      ${rowsHtml}
+      <tr><td class="lbl" colspan="2">其他异常记录</td><td class="anom" colspan="5">${esc(r.anomaly||'无')}</td></tr>
+    </tbody></table></div>
+    <div class="doc-concl">检验结论：<span class="ck">☑ 合格</span>　<span class="ck off">□ 不合格</span></div>
+    <div class="doc-signrow2">
+      <span class="sg">检验：${r.sign?signHtml(r.sign):handSign(p.inspector||'')}</span>
+      <span class="sg">审核：${handSign(p.reviewer||'')}</span>
+      <span class="sg">批准：${handSign(p.approver||'')}</span>
+      <span class="sg issue">签发日期：${d.approve||''}${dateSealSvg(d.approve)}</span>
+    </div>
+    <div class="doc-foot2"><b>江西丰羽顺途科技有限公司</b><span>地址：江西省南昌市××区××路××号</span><span>电话：0791-8888-8888</span></div>
+  </div></div>
+  <div class="doc-hint">整份报告概览 · 点击可放大查看</div></div>`;
+  h += `<div style="height:12px"></div>`;
+  show('detail'); $('#scr-detail').innerHTML = h;
+  fitDoc(); requestAnimationFrame(fitDoc);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(CUR==='detail') fitDoc(); });
+}
+/* 概览缩放：整份文书等比缩小至一屏内完整可见（无需拖动）；字体就绪后二次测量，避免底部裁切 */
+function fitDoc(){
+  const wrap = document.getElementById('doc-fit'); if(!wrap) return;
+  const page = wrap.querySelector('.doc-page'); if(!page) return;
+  page.style.width = '640px'; page.style.transform = 'none'; wrap.style.height = '';
+  const pw = 640, ph = Math.max(page.offsetHeight, page.scrollHeight);
+  const availW = wrap.clientWidth;
+  const availH = window.innerHeight - 46 - 30 - 22; /* 顶栏 + 提示行 + 上下留白 */
+  const k = Math.max(.12, Math.min(availW/pw, availH/ph, 1));
+  page.style.transform = 'scale('+k+')';
+  wrap.style.height = Math.round(ph*k)+'px';
+}
+/* 图片预览式全屏放大：深色遮罩 + 原版式文书（可自由滚动），点击遮罩/关闭按钮退出 */
+function openDocZoom(){
+  const page = document.querySelector('#doc-fit .doc-page'); if(!page) return;
+  const clone = page.cloneNode(true);
+  clone.removeAttribute('data-act'); clone.style.transform = ''; clone.style.width = '640px';
+  $('#modal-root').innerHTML = `<div class="zoom-mask" data-act="zoom-close">
+    <button class="zoom-close" data-act="zoom-close">✕</button>
+    <div class="zoom-body"><div class="zoom-fit" id="zoom-fit">${clone.outerHTML}</div></div></div>`;
+  fitZoomDoc(); requestAnimationFrame(fitZoomDoc);
+}
+/* 放大查看：文书按屏宽等比缩放（不横向溢出），纵向滚动即可完整浏览整份报告 */
+function fitZoomDoc(){
+  const fit = document.getElementById('zoom-fit'); if(!fit) return;
+  const page = fit.querySelector('.doc-page'); if(!page) return;
+  page.style.transform = 'none';
+  const ph = Math.max(page.offsetHeight, page.scrollHeight) || 1200;
+  const k = Math.min(1, (fit.clientWidth || 355) / 640);
+  page.style.transform = 'scale(' + k + ')';
+  fit.style.height = Math.round(ph * k) + 'px';
+}
+/* ================= 表单公共构建 ================= */
+function judgeHtml(rid, res){ return `<div class="judge">
+  <label class="${res==='pass'?'on-ok':''}"><input type="radio" data-judge="${rid}" value="pass" ${res==='pass'?'checked':''}>合格</label>
+  <label class="${res==='bad'?'on-bad':''}"><input type="radio" data-judge="${rid}" value="bad" ${res==='bad'?'checked':''}>不合格</label></div>`; }
+/* 现场照片：填写页上传区（每个检验项独立，选填） */
+function photoFieldHtml(id, rec){ const imgs = imgsOf(rec);
+  return `<div class="f-label">现场照片 <span class="opt">选填 · 最多 ${IMG_MAX} 张</span></div>
+  <div class="img-grid">
+    ${imgs.map((u,i)=>`<div class="img-cell"><img src="${u}" data-act="img-zoom" alt="现场照片"><button class="img-del" data-act="img-del" data-id="${id}" data-i="${i}" title="删除照片">✕</button></div>`).join('')}
+    ${imgs.length<IMG_MAX
+      ? `<label class="img-add"><span class="pl">＋</span>上传照片<input type="file" accept="image/*" multiple hidden data-img-pick="${id}"></label>`
+      : `<div class="img-add" style="border-style:solid;background:#f8fafc;color:var(--t4);cursor:default">已达上限</div>`}
+  </div>`; }
+/* 图片读取：等比压缩（最长边 800px）后转 dataURL，降低本地存储占用 */
+function readImgFile(file){
+  return new Promise(res=>{
+    const fr = new FileReader();
+    fr.onload = ()=>{ const img = new Image();
+      img.onload = ()=>{ try{
+        const k = Math.min(1, 800/Math.max(img.width, img.height));
+        const cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(img.width*k)); cv.height = Math.max(1, Math.round(img.height*k));
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        res(cv.toDataURL('image/jpeg', .68));
+      }catch(err){ res(fr.result); } };
+      img.onerror = ()=>res(fr.result);
+      img.src = fr.result; };
+    fr.onerror = ()=>res('');
+    fr.readAsDataURL(file); });
+}
+/* 全屏图片预览浮层（可叠加在明细文书放大查看之上） */
+function openImg(src){
+  const layer = document.createElement('div');
+  layer.className = 'img-mask'; layer.setAttribute('data-act','img-close');
+  layer.innerHTML = `<img src="${src}" data-act="img-hold" alt="现场照片"><button class="img-close" data-act="img-close">✕</button><div class="img-cap">现场照片 · 点击空白处关闭</div>`;
+  $('#modal-root').appendChild(layer);
+}
+function reqInputs(row, r){ const rec = r.rows[row.id]||{};
+  return `<div class="f-label">检验记录</div>
+  <input type="text" data-rec="${row.id}" value="${esc(rec.rec||'')}" placeholder="填写检验记录">
+  ${photoFieldHtml(row.id, rec)}
+  <div class="f-label">检验结果 <span class="req-star">*必选</span></div>
+  ${judgeHtml(row.id, rec.res)}`; }
+/* 试飞：检验内容块（下挂多条检验要求，虚线分隔 · 对齐 APP 原型） */
+function ftContentHtml(c, r){ return `<div class="req-row"><div class="ct">${c.content}</div>
+  ${c.reqs.map(row=>`<div class="sub-req" data-rid="${row.id}"><div class="rq">检验要求：${row.req}</div>${reqInputs(row,r)}</div>`).join('')}</div>`; }
+/* 出货检验：检验内容行（类别/检验项目在分组与小标题体现） */
+function shRowHtml(row, r){ return `<div class="req-row" data-rid="${row.id}"><div class="ct">${row.content}</div>
+  <div class="rq">判定标准要求：${row.req}</div>${reqInputs(row,r)}</div>`; }
+function oldFtList(){
+  const olds = S.ftReports.slice(0,-1).filter(r=>r.locked);
+  if(!olds.length) return '';
+  return `<div class="old-list">` + olds.map(o=>`<div class="old-item">第 ${o.round} 次试飞 · ${o.date}
+    <span class="st ${o.passed?'st-ok':'st-bad'}">${o.passed?'已通过':'未通过'}</span></div>`).join('') + `</div>`; }
+/* ================= 试飞填写页 ================= */
+function ftAllJudged(r){ return ftFlyRows().every(row=>(r.rows[row.id]||{}).res); }
+function renderFlight(){
+  const r = curFt();
+  if(!r){ return; }
+  if(r.status && r.status!=='draft'){ renderFtStatus(r); return; }
+  let h = `<div class="topbar"><button class="backbtn" data-act="back">‹</button><span class="tt">试飞填写</span><span class="sub">飞机编号：${PLANE_NO}</span></div>`;
+  h += `<div class="meta-strip">
+    <div class="meta-chip"><div class="k">试飞次数</div><div class="v">${S.ftReports.length} 次</div></div>
+    <div class="meta-chip"><div class="k">试飞日期</div><div class="v">${r.date}</div></div></div>`;
+  /* 「数据分析」表单项不对测试人员展示，仅渲染「试飞情况」分组 */
+  FT_TEMPLATE.filter(g=>g.item!=='数据分析').forEach((g,gi)=>{
+    h += `<div class="grp" data-grp="${gi}"><div class="grp-h" data-act="toggle">
+      <span class="gi"></span><span class="gt">${g.item}</span><span class="arr">▾</span></div>
+      <div class="grp-b">${g.contents.map(c=>ftContentHtml(c,r)).join('')}</div></div>`;
+  });
+  h += `<div class="card"><div class="f-label" style="margin-top:0">其他异常记录（选填）</div>
+    <textarea data-anomaly placeholder="无异常可留空">${esc(r.anomaly||'')}</textarea></div>`;
+  h += oldFtList();
+  h += `<div class="ro-hint">提交后填写人将自动记录为登录账号：${USER.name}（${USER.code}）</div>`;
+  h += `<div class="action-bar"><button class="btn btn-s" data-act="draft">暂存</button>
+    <button class="btn btn-p" data-act="ft-submit">提交试飞情况</button></div>`;
+  show('flight'); $('#scr-flight').innerHTML = h;
+}
+/* ================= 试飞 · 数据分析等待界面（两阶段：提交试飞情况 → 数据分析；判定完成自动流转） ================= */
+function renderFtStatus(r){
+  const st = r.status;
+  /* 数据分析判定完成（合格）：不停留等待界面，立刻自动流转至出货检验报告阶段 */
+  if(st==='passed'){ renderShip(); return; }
+  const step = (cls, t, s) => `<div class="tl-item ${cls}"><div class="tl-dot">${cls==='done'?'✓':cls==='bad'?'✕':cls==='act'?'<span class="sp"></span>':(cls==='wait'?'·':'')}</div><div><div class="tl-t">${t}</div><div class="tl-s">${s}</div></div></div>`;
+  let h = `<div class="topbar"><span class="tt">试飞报告</span><span class="sub">飞机编号：${PLANE_NO}</span></div>`;
+  h += `<div class="meta-strip">
+    <div class="meta-chip"><div class="k">试飞次数</div><div class="v">${S.ftReports.length} 次</div></div>
+    <div class="meta-chip"><div class="k">试飞日期</div><div class="v">${r.date}</div></div></div>`;
+  h += `<div class="timeline">`;
+  h += step('done','提交试飞情况','填写人 '+(r.filler?r.filler.name+'（'+r.filler.code+'）':'')+' · '+(r.dates&&r.dates.flight||''));
+  if(st==='rejected') h += step('bad','数据分析','不合格原因：'+esc(r.rejectReason||''));
+  else h += step('act','待数据分析','等待算法人员反馈导航/控制分析结果');
+  h += `</div>`;
+  if(st==='rejected'){
+    h += `<div class="reason-banner" style="margin:10px 12px 0"><b>试飞未通过 · 环节：数据分析</b>${esc(r.rejectReason||'')}</div>`;
+    h += `<div class="action-bar"><button class="btn btn-p" data-act="ft-regen">生成新试飞报告</button></div>`;
+  }
+  show('flight'); $('#scr-flight').innerHTML = h;
+}
+/* ================= 出货检验填写 / 后台流转 ================= */
+function shAllJudged(r){ return shRows().every(row=>(r.rows[row.id]||{}).res); }
+/* 提交校验：未判定项红闪 2 秒 + 平滑滚动至第一个未判定项 */
+function flashUnjudged(){
+  const r = CUR==='flight' ? curFt() : curSh();
+  const scope = CUR==='flight' ? '#scr-flight' : '#scr-ship';
+  document.querySelectorAll(scope+' .grp.closed').forEach(g=>g.classList.remove('closed'));
+  const els = [...document.querySelectorAll(scope+' [data-rid]')].filter(el=>!((r.rows[el.dataset.rid]||{}).res));
+  if(!els.length) return;
+  els.forEach(el=>el.classList.add('flash-bad'));
+  setTimeout(()=>els.forEach(el=>el.classList.remove('flash-bad')), 2000);
+  const y = els[0].getBoundingClientRect().top + window.pageYOffset - 110;
+  window.scrollTo({ top: Math.max(0, y), behavior:'smooth' });
+  toast('存在未判定的检验项');
+}
+/* 同页重渲染时保持滚动位置（判定/上传/签名后不跳顶） */
+function keepScroll(fn){ const y = window.pageYOffset; fn(); window.scrollTo(0, y); }
+function renderShip(){
+  const r = curSh();
+  if(!r){ return; }
+  if(r.status!=='draft'){ renderShipStatus(r); return; }
+  /* 同一检验人自动填充上次签名，无需手动操作；重签后自动覆盖 */
+  const autoFilled = !r.sign && S.lastSign && (S.lastSign.img || S.lastSign.name);
+  if(autoFilled){ r.sign = JSON.parse(JSON.stringify(S.lastSign)); save(); }
+  let h = `<div class="topbar"><button class="backbtn" data-act="back">‹</button><span class="tt">出货检验</span><span class="sub">飞机编号：${PLANE_NO}</span></div>`;
+  if(r.prevReason){ h += `<div class="reason-banner"><b>上次驳回原因</b>${esc(r.prevReason)}</div>`; }
+  h += `<div class="meta-strip">
+    <div class="meta-chip"><div class="k">检验轮次</div><div class="v">第 ${r.round} 次</div></div>
+    <div class="meta-chip"><div class="k">检验日期</div><div class="v">${r.date}</div></div></div>`;
+  SH_TEMPLATE.forEach((g,gi)=>{
+    h += `<div class="grp" data-grp="${gi}"><div class="grp-h" data-act="toggle">
+      <span class="gi"></span><span class="gt">${g.cat}</span><span class="arr">▾</span></div>
+      <div class="grp-b">${g.items.map(it=>`<div class="item-h">${it.item}</div>`+it.rows.map(row=>shRowHtml(row,r)).join('')).join('')}</div></div>`;
+  });
+  h += `<div class="card"><div class="f-label" style="margin-top:0">其他异常记录（选填）</div>
+    <textarea data-anomaly placeholder="无异常可留空">${esc(r.anomaly||'')}</textarea></div>`;
+  h += `<div class="card"><div class="sign-row"><div class="who">检验人电子签名 <small>${USER.name}（${USER.code}）${autoFilled?' · 已自动填充上次签名':''}</small></div>
+    ${r.sign ? `<span class="sign-ops">${signHtml(r.sign)}<button class="btn btn-s btn-sm" data-act="sign">重签</button></span>`
+      : `<span class="sign-ops"><button class="btn btn-s btn-sm" data-act="sign">签名</button></span>`}</div></div>`;
+  h += oldShList();
+  h += `<div class="action-bar"><button class="btn btn-s" data-act="draft">暂存</button>
+    <button class="btn btn-p" data-act="sh-submit">提交</button></div>`;
+  show('ship'); $('#scr-ship').innerHTML = h;
+}
+function oldShList(){
+  const olds = S.shReports.slice(0,-1).filter(r=>r.status!=='draft');
+  if(!olds.length) return '';
+  return `<div class="old-list">` + olds.map(o=>`<div class="old-item">第 ${o.round} 次出货检验
+    <span class="st ${o.status==='passed'?'st-ok':'st-bad'}">${o.status==='passed'?'已通过':'已驳回'}</span></div>`).join('') + `</div>`; }
+function renderShipStatus(r){
+  const st = r.status;
+  const step = (cls, t, s) => `<div class="tl-item ${cls}"><div class="tl-dot">${cls==='done'?'✓':cls==='bad'?'✕':cls==='act'?'<span class="sp"></span>':(cls==='wait'?'·':'')}</div><div><div class="tl-t">${t}</div><div class="tl-s">${s}</div></div></div>`;
+  let h = `<div class="topbar"><span class="tt">出货检验</span><span class="sub">飞机编号：${PLANE_NO}</span></div>`;
+  h += `<div class="timeline">`;
+  h += step('done','提交检验报告','检验人 '+ (r.persons&&r.persons.inspector||'') +' · '+ (r.dates&&r.dates.inspect||''));
+  if(st==='reviewing') h += step('act','审核中','审核人正在审核检验报告');
+  else if(st==='rejected' && r.rejectStage==='inspect') h += step('bad','整体检验判定未通过','驳回原因：'+esc(r.rejectReason||''));
+  else if(st==='rejected' && r.rejectStage==='review') h += step('bad','审核驳回','驳回原因：'+esc(r.rejectReason||''));
+  else h += step(st==='approving'||st==='passed'||(st==='rejected'&&r.rejectStage==='approve')?'done':'wait','审核', r.dates&&r.dates.review? '审核人 '+(r.persons.reviewer||'')+' · '+r.dates.review+' 合格':'待审核');
+  if(st==='approving') h += step('act','批准中','批准人正在批准检验报告');
+  else if(st==='rejected' && r.rejectStage==='approve') h += step('bad','批准驳回','驳回原因：'+esc(r.rejectReason||''));
+  else if(st==='passed') h += step('done','批准','批准人 '+(r.persons.approver||'')+' · '+r.dates.approve+' 合格');
+  else h += step('wait','批准','待批准');
+  h += step(st==='passed'?'done':'wait','飞机出厂', st==='passed' ? '检验、审核、批准均已完成，飞机准予出厂' : '待批准通过后出厂');
+  h += `</div>`;
+  if(st==='rejected'){
+    h += `<div class="reason-banner" style="margin:0 12px"><b>已驳回 · 驳回环节：${r.rejectStage==='review'?'审核':(r.rejectStage==='inspect'?'检验整体判定':'批准')}</b>${esc(r.rejectReason||'')}</div>`;
+    h += `<div class="action-bar"><button class="btn btn-p" data-act="sh-regen">生成新检验报告</button></div>`;
+  }
+  if(st==='passed'){
+    h += `<div class="card"><div class="card-h">${icon('doc')}出厂确认</div>${krows([
+      ['检验日期',r.dates.inspect],['审核日期',r.dates.review],['批准日期',r.dates.approve],
+      ['检验人',r.persons.inspector],['审核人',r.persons.reviewer],['批准人',r.persons.approver]])}
+      <div class="sign-strip" style="border-top:1px solid var(--line2);margin-top:6px">${sealSvg()}
+        <div class="sign-line" style="padding-right:110px">检验人签名 ${signHtml(r.sign)}</div>
+        <div class="sign-line" style="padding-right:110px">审核人签名 ${handSign(r.persons.reviewer)}</div>
+        <div class="sign-line" style="padding-right:110px">批准人签名 ${handSign(r.persons.approver)}</div>
+      </div></div>`;
+    h += `<div class="action-bar"><button class="btn btn-s" data-act="detail">查看整机检验报告</button>
+      <button class="btn btn-p" data-act="home">查看飞机履历</button></div>`;
+  }
+  show('ship'); $('#scr-ship').innerHTML = h;
+}
+/* ================= 路由 ================= */
+let CUR = 'scan';
+const _show = show;
+show = function(id){ CUR = id; _show(id);
+  $('#debug-fab').style.bottom = (id==='flight'||id==='ship') ? '78px' : '20px'; };
+function routeAfterScan(){
+  if(!S.login || S.stage==='done'){ renderHistory(); return; }
+  if(S.stage==='ft'){ renderFlight(); return; }
+  renderShip();
+}
+/* ================= 弹窗 ================= */
+function openModal(html){ $('#modal-root').innerHTML = `<div class="mask">${html}</div>`; }
+function closeModal(){ $('#modal-root').innerHTML = ''; }
+/* ================= 整体检验判定弹窗（试飞/出货检验提交通用） ================= */
+function openVerdict(kind){
+  const isFt = kind==='ft';
+  const r = isFt ? curFt() : curSh();
+  const rows = isFt ? ftFlyRows() : shRows();
+  let badN = 0; rows.forEach(row=>{ if((r.rows[row.id]||{}).res==='bad') badN++; });
+  const passN = rows.length - badN;
+  let v = null;
+  const desc = () => !v ? '请手动选择整体检验判定结果，选择后方可提交。'
+    : isFt
+    ? (v==='pass' ? '试飞情况报告将锁定为「合格」，提交算法人员进行数据分析；数据分析判定合格后自动转入出货检验。'
+      : '报告将锁定为「未通过」，试飞次数 +1，自动生成新的待测试试飞报告，旧报告保留在履历。')
+    : (v==='pass' ? '报告将锁定并提交审核与批准，批准通过后飞机准予出厂。'
+      : '报告将锁定为已驳回，自动生成新的检验报告，旧报告保留在履历。');
+  const paint = () => { const m=$('#modal-root');
+    m.querySelectorAll('.verdict-pick label').forEach(l=>l.classList.remove('on-ok','on-bad'));
+    if(v){ const on = m.querySelector(`.verdict-pick label[data-v="${v}"]`); on.classList.add(v==='pass'?'on-ok':'on-bad'); }
+    m.querySelector('[data-vdesc]').textContent = desc();
+    m.querySelector('[data-act=m-confirm]').disabled = !v; };
+  openModal(`<div class="sheet"><div class="sheet-h">整体检验判定</div>
+    <div class="sheet-s">请根据各项检验结果手动给出整体判定，系统不提供默认结论。</div>
+    <div class="v-counts"><span class="vc ok">合格 ${passN} 项</span><span class="vc ${badN?'bad':''}">不合格 ${badN} 项</span></div>
+    <div class="verdict-pick">
+      <label data-v="pass"><input type="radio" name="vp">合格<small>${isFt?'锁定合格 · 提交数据分析':'锁定 · 提交审核'}</small></label>
+      <label data-v="bad"><input type="radio" name="vp">不合格<small>${isFt?'锁定未通过 · 生成新报告':'锁定驳回 · 生成新报告'}</small></label>
+    </div>
+    <div class="sheet-s" data-vdesc style="margin:10px 0 0"></div>
+    <div class="btn-row"><button class="btn btn-s" data-act="m-cancel">取消</button>
+      <button class="btn btn-p" data-act="m-confirm" disabled>确认提交</button></div></div>`);
+  paint();
+  $('#modal-root').querySelectorAll('.verdict-pick label').forEach(l=>{
+    l.addEventListener('click', ()=>{ v = l.dataset.v; l.querySelector('input').checked = true; paint(); });
+  });
+  $('#modal-root').querySelector('[data-act=m-confirm]').addEventListener('click', ()=>{
+    if(!v){ toast('请先选择整体检验判定'); return; }
+    r.locked = true; r.verdict = v;
+    if(isFt){
+      r.filler = { name:USER.name, code:USER.code, time:fmtDT(new Date()) };   /* 填写人自动绑定登录账号 */
+      if(v==='pass'){
+        /* 试飞情况判定合格：进入「数据分析」等待子阶段（算法人员反馈），合格后自动流转出货检验 */
+        r.status='analyzing'; r.dates={ flight: fmtDT(new Date()) };
+        save(); closeModal(); startFtAnalyze(r);
+      } else {
+        r.passed=false; r.status='rejected'; r.rejectStage='flight';
+        r.rejectReason='整体检验判定不合格'+(badN>0?('（'+badN+' 项不合格）'):'');
+        S.ftReports.push(newFtReport(S.ftReports.length+1)); save(); closeModal();
+        toast('试飞未通过，已生成新的试飞报告'); renderFlight();
+      }
+    } else {
+      if(v==='pass'){ closeModal(); startShipReview(r); }
+      else { closeModal(); rejectSh(r,'inspect', badN>0 ? ('整体检验判定不合格（'+badN+' 项不合格）') : '整体检验判定不合格'); toast('报告已驳回，请生成新检验报告'); }
+    }
+  });
+}
+/* ================= 电子签名面板（横版） ================= */
+function openSign(cb){
+  $('#modal-root').innerHTML = `<div class="sig-land-mask"><div class="sig-land">
+    <div class="sl-h"><b>电子签名</b><span>签署人：${USER.name} · 工号 ${USER.code}</span></div>
+    <canvas id="sig-cv" class="sig-canvas"></canvas>
+    <div class="sig-tools"><span style="display:flex;gap:8px"><button class="btn btn-s btn-sm" data-act="sig-clear">清除重写</button></span>
+      <span style="display:flex;gap:8px"><button class="btn btn-s btn-sm" data-act="m-cancel">取消</button>
+      <button class="btn btn-p btn-sm" data-act="sig-ok">确认签名</button></span></div>
+  </div></div>`;
+  const cv = $('#sig-cv'), ctx = cv.getContext('2d');
+  cv.width = cv.clientWidth * 2; cv.height = cv.clientHeight * 2;
+  ctx.scale(2,2); ctx.lineWidth = 2.2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle = '#1e293b';
+  let drawing=false, drew=false, last=null;
+  /* 面板旋转 90°：屏幕触点坐标映射回画布局部坐标（横版书写） */
+  const pos = e => { const b=cv.getBoundingClientRect(); const t=e.touches?e.touches[0]:e;
+    return [ (t.clientY-b.top)*(cv.clientWidth/b.height), (b.right-t.clientX)*(cv.clientHeight/b.width) ]; };
+  const down = e => { e.preventDefault(); drawing=true; last=pos(e); };
+  const move = e => { if(!drawing) return; e.preventDefault(); const p=pos(e);
+    ctx.beginPath(); ctx.moveTo(last[0],last[1]); ctx.lineTo(p[0],p[1]); ctx.stroke(); last=p; drew=true; };
+  const up = () => drawing=false;
+  cv.addEventListener('pointerdown',down); cv.addEventListener('pointermove',move);
+  window.addEventListener('pointerup',up);
+  $('#modal-root').querySelector('[data-act=sig-clear]').addEventListener('click', ()=>{ ctx.clearRect(0,0,cv.width,cv.height); drew=false; });
+  $('#modal-root').querySelector('[data-act=sig-ok]').addEventListener('click', ()=>{
+    window.removeEventListener('pointerup',up);
+    closeModal(); cb({ name: USER.name, code: USER.code, img: drew ? cv.toDataURL('image/png') : null });
+  });
+}
+/* ================= 试飞 · 数据分析流转（5s 模拟算法人员反馈 + 随机种子） ================= */
+const findFt = id => S.ftReports.find(x=>x.id===id);
+function startFtAnalyze(r){
+  renderFtStatus(r); toast('已提交，等待算法人员数据分析反馈');
+  setTimeout(()=>analyzeResolve(r.id), 5000);
+}
+function analyzeResolve(id){
+  const r = findFt(id); if(!r || r.status!=='analyzing') return;
+  const ok = seedResult(S.seeds.analyze);
+  ftAnaRows().forEach(row=>{ r.rows[row.id] = { rec: ok?'分析结果合格':'分析结果不合格', res: ok?'pass':'bad' }; });
+  r.dates.analyze = fmtDT(new Date()); r.analyst = '李四（算法组）';
+  if(ok){
+    r.status='passed'; r.passed=true;
+    S.stage='sh'; S.shReports.push(newShReport(S.shReports.length+1,''));
+    save(); toast('数据分析合格，试飞通过，自动转入出货检验'); renderShip();
+  } else {
+    r.status='rejected'; r.passed=false; r.rejectStage='analyze'; r.rejectReason=pick(FT_REJECT_REASONS);
+    save(); renderFtStatus(r); toast('数据分析不合格，试飞未通过');
+  }
+}
+/* ================= 出货检验后台流转（5s 模拟 + 随机种子） ================= */
+const seedResult = seed => seed==='pass' ? true : seed==='reject' ? false : Math.random() < 0.5;
+const findSh = id => S.shReports.find(x=>x.id===id);
+function shSubmit(){
+  const r = curSh();
+  if(!shAllJudged(r)){ flashUnjudged(); return; }
+  if(!r.sign) return toast('请先完成检验人电子签名');
+  openVerdict('sh');
+}
+function startShipReview(r){
+  const bads = [];
+  shRows().forEach(row=>{ if((r.rows[row.id]||{}).res==='bad') bads.push(row.content); });
+  r.anyBad = bads.length>0; r.badItems = bads;
+  r.status='reviewing'; r.dates={ inspect: fmtDT(new Date()) }; r.persons={ inspector:r.sign.name };
+  r.locked=true; save(); renderShipStatus(r); toast('已提交，进入审核流程');
+  setTimeout(()=>reviewResolve(r.id), 5000);
+}
+function reviewResolve(id){
+  const r = findSh(id); if(!r || r.status!=='reviewing') return;
+  if(r.anyBad || !seedResult(S.seeds.review)){
+    rejectSh(r,'review', r.anyBad ? '检验项不合格：'+r.badItems.join('、') : pick(REJECT_REASONS)); return;
+  }
+  r.status='approving'; r.dates.review = fmtDT(new Date()); r.persons.reviewer='赵四';
+  save(); renderShipStatus(r); toast('审核通过，进入批准流程');
+  setTimeout(()=>approveResolve(id), 5000);
+}
+function approveResolve(id){
+  const r = findSh(id); if(!r || r.status!=='approving') return;
+  if(!seedResult(S.seeds.approve)){ rejectSh(r,'approve', pick(REJECT_REASONS)); return; }
+  r.status='passed'; r.dates.approve = fmtDT(new Date()); r.persons.approver='王五';
+  r.reportDate = fmtD(new Date()); S.stage='done'; save();
+  renderShipStatus(r); toast('批准通过，飞机出厂');
+}
+function rejectSh(r, stage, reason){
+  r.status='rejected'; r.rejectStage=stage; r.rejectReason=reason;
+  save(); renderShipStatus(r); toast('报告已驳回：'+(stage==='review'?'审核':'批准')+'环节');
+}
+/* ================= 事件委托 ================= */
+document.addEventListener('click', e=>{
+  const fab = e.target.closest('#debug-fab');
+  if(fab){ const p=$('#debug-panel'); p.hidden=!p.hidden; if(!p.hidden) renderDebug(); return; }
+  const m = e.target.closest('.mask'); if(m && e.target===m){ closeModal(); return; }
+  const actEl = e.target.closest('[data-act]');
+  if(!actEl) return;
+  const act = actEl.dataset.act;
+  if(act==='mask-close'||act==='m-cancel'){ closeModal(); return; }
+  switch(act){
+    case 'back': case 'home': renderHistory(); break;
+    case 'resume': S.stage==='ft' ? renderFlight() : renderShip(); break;
+    case 'detail': { const ps=passedSh(); if(ps) renderDetail(ps); break; }
+    case 'doc-zoom': openDocZoom(); break;
+    case 'zoom-close': { if(!e.target.closest('.zoom-body') || e.target.closest('.zoom-close')) closeModal(); break; }
+    case 'toggle': actEl.closest('.grp').classList.toggle('closed'); break;
+    case 'sign': openSign(s=>{ curSh().sign=s; S.lastSign=s; save(); keepScroll(renderShip); toast('签名完成'); }); break;
+    case 'draft': save(); toast('已暂存'); break;
+    case 'ft-submit': { const r=curFt();
+        if(!ftAllJudged(r)){ flashUnjudged(); return; }
+        openVerdict('ft'); break; }
+    case 'sh-submit': shSubmit(); break;
+    case 'sh-regen': { const r=curSh(); S.shReports.push(newShReport(S.shReports.length+1, r.rejectReason||'')); save(); toast('已生成新检验报告'); renderShip(); break; }
+    case 'ft-regen': S.ftReports.push(newFtReport(S.ftReports.length+1)); save(); toast('已生成新的试飞报告'); renderFlight(); break;
+    case 'img-zoom': openImg(actEl.src); break;
+    case 'img-hold': break;
+    case 'img-close': { const lay = actEl.classList.contains('img-mask') ? actEl : actEl.closest('.img-mask'); if(lay) lay.remove(); break; }
+    case 'img-del': { const id=actEl.dataset.id, i=+actEl.dataset.i;
+        const rr = CUR==='flight' ? curFt() : (CUR==='ship' ? curSh() : null);
+        const cell = rr && rr.rows[id]; if(!cell || !cell.imgs || !cell.imgs[i]) break;
+        cell.imgs.splice(i,1); save();
+        keepScroll(()=>{ CUR==='flight' ? renderFlight() : renderShip(); }); toast('已删除照片'); break; }
+    case 'dbg-close': $('#debug-panel').hidden=true; break;
+  }
+});
+document.addEventListener('input', e=>{
+  const r = CUR==='flight' ? curFt() : CUR==='ship' ? curSh() : null;
+  if(!r) return;
+  if(e.target.matches('[data-rec]')){ const id=e.target.dataset.rec; (r.rows[id]=r.rows[id]||{}).rec=e.target.value; save(); }
+  if(e.target.matches('[data-anomaly]')){ r.anomaly=e.target.value; save(); }
+});
+document.addEventListener('change', e=>{
+  const r = CUR==='flight' ? curFt() : CUR==='ship' ? curSh() : null;
+  if(!r) return;
+  if(e.target.matches('[data-judge]')){ const id=e.target.dataset.judge; (r.rows[id]=r.rows[id]||{}).res=e.target.value; save();
+    keepScroll(()=>{ CUR==='flight' ? renderFlight() : renderShip(); }); }
+  if(e.target.matches('[data-img-pick]')){
+    const id=e.target.dataset.imgPick, files=[...(e.target.files||[])]; e.target.value='';
+    const cell = (r.rows[id]=r.rows[id]||{}); cell.imgs = cell.imgs || [];
+    const pics = files.filter(f=>/^image\//.test(f.type));
+    if(!pics.length){ toast('请选择图片文件'); return; }
+    const room = IMG_MAX - cell.imgs.length;
+    if(room<=0){ toast('每个检验项最多上传 '+IMG_MAX+' 张照片'); return; }
+    const take = pics.slice(0, room);
+    if(take.length < pics.length) toast('每个检验项最多上传 '+IMG_MAX+' 张照片');
+    Promise.all(take.map(readImgFile)).then(list=>{
+      const ok = list.filter(Boolean);
+      ok.forEach(u=>cell.imgs.push(u)); save();
+      keepScroll(()=>{ CUR==='flight' ? renderFlight() : renderShip(); });
+      toast(ok.length ? ('已添加 '+ok.length+' 张现场照片') : '照片读取失败，请重试'); });
+  }
+});
+window.addEventListener('resize', ()=>{ if(CUR==='detail') fitDoc(); if(document.getElementById('zoom-fit')) fitZoomDoc(); });
+/* ================= 调试面板 ================= */
+function segHtml(key, opts, cur){ return `<div class="dbg-seg">`+opts.map(o=>
+  `<button data-dbg="${key}" data-v="${o[0]}" class="${cur===o[0]?'on':''}">${o[1]}</button>`).join('')+`</div>`; }
+function renderDebug(){
+  $('#debug-panel').innerHTML = `
+    <button class="dbg-close" data-act="dbg-close">✕</button>
+    <h4>身份（扫码登录判断）</h4>
+    ${segHtml('login', [['0','未登录 → 客户履历视图'],['1','已登录 → 员工/流程视图']], S.login?'1':'0')}
+    <h4>出厂流程阶段（重置演示）</h4>
+    ${segHtml('stage', [['done','已完成 · 含通过报告'],['ft','试飞阶段'],['sh','出货检验阶段']], S.stage)}
+    <h4>数据分析种子（试飞）</h4>${segHtml('analyze', [['random','随机'],['pass','必合格'],['reject','必不合格']], S.seeds.analyze)}
+    <h4>后台审核种子</h4>${segHtml('review', [['random','随机'],['pass','必通过'],['reject','必驳回']], S.seeds.review)}
+    <h4>后台批准种子</h4>${segHtml('approve', [['random','随机'],['pass','必通过'],['reject','必驳回']], S.seeds.approve)}
+    <div class="dbg-note">提交试飞情况并判定合格后约 5s 反馈数据分析结果，合格后自动进入出货检验；出货检验提交后约 5s 流转审核、再 5s 流转批准；「随机」每次结果随机。任一环节不合格/驳回，报告标记未通过或已驳回并记录环节与原因，可生成新报告，旧报告保留在履历。</div>
+    <h4>一键合格（演示）</h4>
+    <div class="dbg-row"><button class="btn btn-s" data-dbg="ft-pass">试飞一键合格</button>
+      <button class="btn btn-s" data-dbg="sh-pass">出货检验一键合格</button></div>
+    <div class="dbg-row"><button class="btn btn-s" data-dbg="rescan">重新扫码</button>
+      <button class="btn btn-s" data-dbg="wipe">清空重置</button></div>`;
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-dbg]'); if(!b) return;
+  const k=b.dataset.dbg, v=b.dataset.v;
+  if(k==='login'){ S.login = v==='1'; save(); renderDebug(); toast(S.login?'已切换为已登录':'已切换为未登录'); }
+  if(k==='stage'){ resetState(v); renderDebug(); routeAfterScan(); toast('已重置流程：'+b.textContent); }
+  if(k==='review'){ S.seeds.review=v; save(); renderDebug(); }
+  if(k==='approve'){ S.seeds.approve=v; save(); renderDebug(); }
+  if(k==='analyze'){ S.seeds.analyze=v; save(); renderDebug(); }
+  if(k==='ft-pass'){
+    if(!(S.stage==='ft' && curFt() && (!curFt().status || curFt().status==='draft'))) resetState('ft');
+    const rf = curFt();
+    ftFlyRows().forEach(row=>{ const c=(rf.rows[row.id]=rf.rows[row.id]||{}); if(!c.rec) c.rec='正常'; c.res='pass'; });
+    S.seeds.analyze='pass'; save(); $('#debug-panel').hidden=true; renderFlight();
+    toast('试飞已一键合格：试飞情况全部判定合格，数据分析设为必合格');
+  }
+  if(k==='sh-pass'){
+    if(!(S.stage==='sh' && curSh() && curSh().status==='draft')) resetState('sh');
+    const rs = curSh();
+    shRows().forEach(row=>{ const c=(rs.rows[row.id]=rs.rows[row.id]||{});
+      if(!c.rec) c.rec = row.content==='重量' ? '47.6kg' : row.content==='RTK定位' ? '1.2cm' : row.content==='电机座' ? '力矩 3.0N·m' : '正常';
+      c.res='pass'; });
+    if(!rs.sign) rs.sign = { name:USER.name, code:USER.code, img:null };
+    S.seeds.review='pass'; S.seeds.approve='pass'; save(); $('#debug-panel').hidden=true; renderShip();
+    toast('出货检验已一键合格：全部判定合格并完成签名，审核/批准设为必通过');
+  }
+  if(k==='rescan'){ $('#debug-panel').hidden=true; renderScan(); setTimeout(routeAfterScan, 1500); }
+  if(k==='wipe'){ try{localStorage.removeItem(LS_KEY);}catch(err){} S=defaultState(); save(); renderDebug(); renderScan(); setTimeout(routeAfterScan,1500); }
+});
+/* ================= 初始化 ================= */
+renderScan();
+setTimeout(routeAfterScan, 1500);
+</script>
+</body>
+</html>
